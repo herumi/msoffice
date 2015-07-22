@@ -1,3 +1,8 @@
+/**
+	@file
+	@brief MS Office encryption encoder/decoder
+	Copyright (C) 2012 Cybozu Labs, Inc., all rights reserved.
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -32,23 +37,27 @@ int main(int argc, char *argv[])
 
 	std::string inFile;
 	std::string outFile;
+	std::string keyFile;
 	std::string pass;
 	std::string pstr, ph8str, ph16str;
 	cybozu::String16 wpass;
-	std::string masterKeyHex;
+	std::string secretKeyHex;
 	bool doEncode = false, doDecode = false, doView = false;
 	int encMode = 0;
 	bool debug = false;
 	bool debug2 = false;
+	bool putSecretKey = false;
 
 	cybozu::Option opt;
 	opt.appendOpt(&pstr, "", "p", "password in only ascii");
-	opt.appendOpt(&masterKeyHex, "", "k", "master key in hex. ex. 0123456789ABCDEF0123456789ABCDEF");
 	opt.appendOpt(&encMode, 0, "encMode", "0:use AES128(default), 1: use AES256 for encoding");
 	opt.appendOpt(&ph8str, "", "ph8", "password in utf8 hex. ex. 68656C6C6F for 'hello'");
 	opt.appendOpt(&ph16str, "", "ph16", "password in utf16 hex. ex. u3042u3044u3046 for 'aiu' in hiragana");
+	opt.appendOpt(&secretKeyHex, "", "k", "(experimental) secret key in hex. ex. 0123456789ABCDEF0123456789ABCDEF");
+	opt.appendOpt(&keyFile, "", "by", "(experimental) extract secret key from this file");
 	opt.appendBoolOpt(&doEncode, "e", "encode");
 	opt.appendBoolOpt(&doDecode, "d", "decode");
+	opt.appendBoolOpt(&putSecretKey, "psk", "print secret key");
 	opt.appendBoolOpt(&debug, "v", "print debug info");
 	opt.appendBoolOpt(&debug2, "vv", "print debug info and save binary data");
 	opt.appendHelp("h");
@@ -63,21 +72,24 @@ int main(int argc, char *argv[])
 	if (!pstr.empty()) {
 		wpass = cybozu::ToUtf16(pstr);
 	}
+	if (putSecretKey) {
+		ms::putSecretKeyInstance() = true;
+	}
 	if (!ph8str.empty()) {
 		wpass = cybozu::ToUtf16(ms::fromHex(ph8str));
 	}
 	if (!ph16str.empty()) {
 		wpass = fromUniHex(ph16str);
 	}
-	std::string masterKey;
-	if (!masterKeyHex.empty()) {
-		masterKey = ms::fromHex(masterKeyHex, true);
+	std::string secretKey;
+	if (!secretKeyHex.empty()) {
+		secretKey = ms::fromHex(secretKeyHex, true);
 	}
 	if (!doEncode && !doDecode) {
 		doDecode = true;
 		doView = true;
 	}
-	if (masterKey.empty() && wpass.empty()) {
+	if (keyFile.empty() && secretKey.empty() && wpass.empty()) {
 		puts("specify -p password");
 		opt.usage();
 	}
@@ -92,8 +104,11 @@ int main(int argc, char *argv[])
 		outFile = base +(doEncode ? "_e." : "_d.") + suf;
 	}
 	printf("inFile=%s, outFile=%s, mode=%s, encMode=%d\n", inFile.c_str(), outFile.c_str(), doEncode ? "enc" : doView ? "view" : "dec", encMode);
-	if (!masterKey.empty()) {
-		printf("set masterKey="); ms::dump(masterKey, false);
+	if (!secretKey.empty()) {
+		printf("set secretKey = "); ms::dump(secretKey, false);
+	}
+	if (!keyFile.empty()) {
+		printf("keyFile = %s\n", keyFile.c_str());
 	}
 	const std::string passData = ms::Char16toChar8(wpass);
 	cybozu::Mmap m(inFile);
@@ -110,13 +125,17 @@ int main(int argc, char *argv[])
 			return 2;
 		}
 		bool isOffice2013 = encMode == 1;
-		ms::encode(data, dataSize, outFile, passData, isOffice2013, masterKey);
+		ms::encode(data, dataSize, outFile, passData, isOffice2013, secretKey);
 	} else {
 		if (format == ms::fZip) {
 			printf("already decrypted\n");
 			return 2;
 		}
-		if (!ms::decode(data, dataSize, outFile, passData, masterKey, doView)) {
+		if (!keyFile.empty()) {
+			secretKey = ms::getSecretKey(keyFile, passData);
+			printf("get secretKey = "); ms::dump(secretKey, false);
+		}
+		if (!ms::decode(data, dataSize, outFile, passData, secretKey, doView)) {
 			printf("bad password\n");
 			return 3;
 		}

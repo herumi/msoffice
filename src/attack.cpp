@@ -1,3 +1,6 @@
+/**
+	Copyright (C) 2012 Cybozu Labs, Inc., all rights reserved.
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -17,6 +20,7 @@ struct Option {
 	std::string charSet;
 	StrVec passSet;
 	size_t threadNum;
+	size_t passLen;
 	void trim(std::string& str) const
 	{
 		const size_t size = str.size();
@@ -48,6 +52,7 @@ struct Option {
 		opt.appendOpt(&charSetFile, "", "cf", "char set file");
 		opt.appendOpt(&threadNum, 4, "t", "thread num");
 		opt.appendOpt(&dicFile, "", "d", "dictionary file");
+		opt.appendOpt(&passLen, 0, "l", "length of pass");
 		opt.appendBoolOpt(&debug, "v", "verbose message");
 		opt.appendHelp("h");
 		opt.appendParam(&encFile, "encrypted file");
@@ -109,6 +114,9 @@ int main(int argc, char *argv[])
 	}
 	if (!opt.passSet.empty()) {
 		ms::Attack attack(data, dataSize, opt.threadNum, opt.passSet);
+	}
+	if (opt.passLen) {
+		ms::Attack attack(data, dataSize, opt.passLen);
 	}
 } catch (std::exception& e) {
 	printf("exception:%s\n", e.what());

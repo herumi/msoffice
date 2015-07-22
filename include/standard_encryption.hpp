@@ -3,8 +3,6 @@
 	@file
 	@brief MS Office 2007 Standard Encryption decoder
 	Copyright (C) 2012 Cybozu Labs, Inc., all rights reserved.
-	see [MS-OFFCRYPTO]
-	Office Document Cryptography Structure Specification
 */
 #include "util.hpp"
 #include <cybozu/crypto.hpp>

@@ -1,4 +1,9 @@
 #pragma once
+/**
+	@file
+	@brief compound file binary format
+	Copyright (C) 2012 Cybozu Labs, Inc., all rights reserved.
+*/
 #include <assert.h>
 #include <vector>
 #include <string>

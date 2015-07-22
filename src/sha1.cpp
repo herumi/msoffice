@@ -1,3 +1,8 @@
+/**
+	@file
+	@brief sha1 sample
+	Copyright (C) 2012 Cybozu Labs, Inc., all rights reserved.
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <cybozu/sha1.hpp>

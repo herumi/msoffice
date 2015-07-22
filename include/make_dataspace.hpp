@@ -1,4 +1,7 @@
 #pragma once
+/**
+	Copyright (C) 2012 Cybozu Labs, Inc., all rights reserved.
+*/
 
 #include <cybozu/time.hpp>
 #include "cfb.hpp"
@@ -20,7 +23,7 @@ enum DSposition {
 	iEncryptionInfo, // 10
 	dirNum
 };
-	
+
 /*
 	make Data Spaces
 */

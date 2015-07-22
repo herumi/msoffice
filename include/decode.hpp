@@ -83,7 +83,7 @@ inline bool VerifyIntegrity(
 	return ret == expected;
 }
 
-inline bool decodeAgile(std::string& decData, const std::string& encryptedPackage, const EncryptionInfo& info, const std::string& pass, const std::string& masterKey)
+inline bool getAgileSecretKey(std::string& secretKey, const EncryptionInfo& info, const std::string& pass)
 {
 	const CipherParam& keyData = info.keyData;
 	const CipherParam& encryptedKey = info.encryptedKey;
@@ -98,28 +98,38 @@ inline bool decodeAgile(std::string& decData, const std::string& encryptedPackag
 	const std::string verifierHash = cipher(encryptedKey.cipherName, info.encryptedVerifierHashValue, skey2, iv, cybozu::crypto::Cipher::Decoding).substr(0, hashedVerifier.size());
 
 	if (hashedVerifier != verifierHash) {
-		if (masterKey.empty()) return false;
+		return false;
 	}
 	const std::string skey3 = generateKey(encryptedKey, pwHash, ms::blkKey_encryptedKeyValue);
-	std::string secretKey = cipher(encryptedKey.cipherName, info.encryptedKeyValue, skey3, iv, cybozu::crypto::Cipher::Decoding);
+	secretKey = cipher(encryptedKey.cipherName, info.encryptedKeyValue, skey3, iv, cybozu::crypto::Cipher::Decoding);
 	if (isDebug()) {
-		printf("salt="); dump(keyData.saltValue, false);
-		printf("secretKey="); dump(secretKey, false);
+		printf("salt = "); dump(keyData.saltValue, false);
+		printf("secretKey = "); dump(secretKey, false);
 	}
+	return true;
+}
 
-	if (masterKey.empty()) {
+inline bool decodeAgile(std::string& decData, const std::string& encryptedPackage, const EncryptionInfo& info, const std::string& pass, std::string secretKey)
+{
+	const CipherParam& keyData = info.keyData;
+	const CipherParam& encryptedKey = info.encryptedKey;
+	if (secretKey.empty()) {
+		if (!getAgileSecretKey(secretKey, info, pass)) return false;
+		if (putSecretKeyInstance()) {
+			printf("secretKey = "); ms::dump(secretKey, false);
+		}
+
 		if (!VerifyIntegrity(encryptedPackage, keyData, secretKey, keyData.saltValue, info.encryptedHmacKey, info.encryptedHmacValue)) {
 			printf("warning : mac err : data may be broken\n");
 //			return false;
 		}
-	} else {
-		secretKey = masterKey;
 	}
 
 	std::string encData;
 	const uint64_t decodeSize = GetEncodedData(encData, encryptedPackage);
 
 	// decode
+	normalizeKey(secretKey, encryptedKey.keyBits / 8);
 	DecContent(decData, encData, encryptedKey, secretKey, keyData.saltValue);
 	decData.resize(decodeSize);
 	return true;
@@ -140,23 +150,18 @@ inline bool verifyStandardEncryption(std::string& encKey, const EncryptionHeader
 	return h == decVerifierHash;
 }
 
-inline bool decodeStandardEncryption(std::string& dec, const std::string& encryptedPackage, const EncryptionInfo& info, const std::string& pass, const std::string& masterKey)
+inline bool decodeStandardEncryption(std::string& dec, const std::string& encryptedPackage, const EncryptionInfo& info, const std::string& pass, std::string secretKey)
 {
-	cybozu::disable_warning_unused_variable(masterKey);
-
 	const EncryptionHeader& header = info.seHeader;
 	const EncryptionVerifier& verifier = info.seVerifier;
 
-	std::string secretKey;
-	if (masterKey.empty()) {
+	if (secretKey.empty()) {
 		if (!verifyStandardEncryption(secretKey, header, verifier, pass)) {
 			return false;
 		}
-	} else {
-		secretKey = masterKey;
 	}
 	if (isDebug()) {
-		printf("secretKey="); dump(secretKey, false);
+		printf("secretKey = "); dump(secretKey, false);
 	}
 
 	const char *p = encryptedPackage.data();
@@ -178,26 +183,50 @@ inline bool decodeStandardEncryption(std::string& dec, const std::string& encryp
 	return true;
 }
 
-inline bool decode(const char *data, uint32_t dataSize, const std::string& outFile, const std::string& pass, const std::string& masterKey, bool doView)
+inline bool decode(const char *data, uint32_t dataSize, const std::string& outFile, const std::string& pass, std::string secretKey, bool doView)
 {
 	ms::cfb::CompoundFile cfb(data, dataSize);
 	cfb.put();
 
 	const std::string& encryptedPackage = GetContensByName(cfb, "EncryptedPackage"); // data
 	const EncryptionInfo info(GetContensByName(cfb, "EncryptionInfo")); // xml
+	info.put();
 
 	std::string decData;
 	if (info.isStandardEncryption) {
-		if (!decodeStandardEncryption(decData, encryptedPackage, info, pass, masterKey)) return false;
+		if (!decodeStandardEncryption(decData, encryptedPackage, info, pass, secretKey)) return false;
 	} else {
-		if (!decodeAgile(decData, encryptedPackage, info, pass, masterKey)) return false;
+		if (!decodeAgile(decData, encryptedPackage, info, pass, secretKey)) return false;
 	}
 	if (!doView) {
+		DetectFormat(decData.c_str(), decData.size());
 		std::ofstream ofs(outFile.c_str(), std::ios::binary);
 		ofs.write(decData.c_str(), decData.size());
 		if (!ofs) throw cybozu::Exception("ms:decode:save") << outFile;
 	}
 	return true;
+}
+
+inline std::string getSecretKey(const std::string& keyFile, const std::string& pass)
+{
+	cybozu::Mmap m(keyFile);
+	const char *data = m.get();
+	if (m.size() > 0xffffffff) {
+		throw cybozu::Exception("getSecretKey:m.size") << m.size();
+	}
+	const uint32_t dataSize = static_cast<uint32_t>(m.size());
+	const ms::Format format = ms::DetectFormat(data, dataSize);
+	if (format != ms::fCfb) {
+		throw cybozu::Exception("getSecretKey:bad format") << keyFile;
+	}
+	ms::cfb::CompoundFile cfb(data, dataSize);
+	const EncryptionInfo info(GetContensByName(cfb, "EncryptionInfo")); // xml
+	info.put();
+
+	if (info.isStandardEncryption) throw cybozu::Exception("getSecretKey:not support") << keyFile;
+	std::string secretKey;
+	if (!getAgileSecretKey(secretKey, info, pass)) throw cybozu::Exception("getSecretKey:can't get") << keyFile;
+	return secretKey;
 }
 
 } // ms

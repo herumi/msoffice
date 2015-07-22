@@ -1,4 +1,8 @@
 #pragma once
+/**
+	@file
+	Copyright (C) 2012 Cybozu Labs, Inc., all rights reserved.
+*/
 #include "util.hpp"
 #include <cybozu/crypto.hpp>
 #include <cybozu/stream.hpp>
@@ -26,13 +30,9 @@ static const std::string blkKey_dataIntegrity1("\x5f" "\xb2" "\xad" "\x01" "\x0c
 // [OFFCRYPTO] 2.3.4.14 DataIntegrity Generation step 6
 static const std::string blkKey_dataIntegrity2("\xa0" "\x67" "\x7f" "\x02" "\xb2" "\x2c" "\x84" "\x33", 8);
 
-inline std::string normalizeKey(const std::string& key, size_t keySize)
+inline void normalizeKey(std::string& key, size_t keySize)
 {
-	if (key.size() >= keySize) {
-		return key.substr(0, keySize);
-	} else {
-		return key + std::string(keySize - key.size(), char(0x36));
-	}
+	key.resize(keySize, char(0x36));
 }
 
 #ifdef DEBUG_CLK
@@ -243,9 +243,6 @@ struct EncryptionInfo {
 		const char *p = &data[0];
 		major = cybozu::Get16bitAsLE(p + 0);
 		minor = cybozu::Get16bitAsLE(p + 2);
-		if (isDebug()) {
-			printf("major=%d, minor=%d\n", major, minor);
-		}
 		// [MS-OFFCRYPTO] 2.3.4.10
 		if (major == 4 && minor == 4) {
 			setAgileEncryptionInfo(data);
@@ -257,6 +254,11 @@ struct EncryptionInfo {
 			return;
 		}
 		throw cybozu::Exception("ms:EncryptionInfo:not support version") << major << minor;
+	}
+	void put() const
+	{
+		if (!isDebug()) return;
+		printf("spinCount = %d, major = %d, minor = %d\n", spinCount, major, minor);
 	}
 
 	void setStandardEncryptionInfo(const std::string& data)
@@ -294,7 +296,6 @@ struct EncryptionInfo {
 		const cybozu::minixml::Node *keyDataNode = xml.get().getFirstTagByName("keyData");
 		if (keyDataNode == 0) throw cybozu::Exception("ms:EncryptionInfo:no keyData");
 		keyData.setByXml(keyDataNode);
-
 		// dataIntegrity
 		const cybozu::minixml::Node *dataIntegrity = xml.get().getFirstTagByName("dataIntegrity");
 		if (dataIntegrity == 0) throw cybozu::Exception("ms:EncryptionInfo:no dataIntegrity");
@@ -399,11 +400,14 @@ inline std::string cipher(cybozu::crypto::Cipher::Name name, const std::string& 
 
 inline std::string generateIv(const CipherParam& param, const std::string& blockKey, const std::string& salt)
 {
+	std::string ret;
 	if (blockKey.empty()) {
-		return normalizeKey(salt, param.blockSize);
+		ret = salt;
+	} else {
+		ret = cybozu::crypto::Hash::digest(param.hashName, salt + blockKey);
 	}
-	std::string ret = cybozu::crypto::Hash::digest(param.hashName, salt + blockKey);
-	return normalizeKey(ret, param.blockSize);
+	normalizeKey(ret, param.blockSize);
+	return ret;
 }
 
 /*
@@ -412,7 +416,8 @@ inline std::string generateIv(const CipherParam& param, const std::string& block
 inline std::string generateKey(const CipherParam& param, const std::string& hash, const std::string& blockKey)
 {
 	std::string ret = cybozu::crypto::Hash::digest(param.hashName, hash + blockKey);
-	return normalizeKey(ret, param.keyBits / 8);
+	normalizeKey(ret, param.keyBits / 8);
+	return ret;
 }
 
 } // ms

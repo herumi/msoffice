@@ -1,4 +1,9 @@
 #pragma once
+/**
+	@file
+	@brief MS Office encryption encoder
+	Copyright (C) 2012 Cybozu Labs, Inc., all rights reserved.
+*/
 #include <cybozu/crypto.hpp>
 #include <cybozu/mmap.hpp>
 #include <cybozu/random_generator.hpp>
@@ -176,9 +181,7 @@ inline bool encode_in(
 	if (!masterKey.empty()) {
 		secretKey = masterKey;
 	}
-	if (secretKey.size() < encryptedKey.keyBits / 8) {
-		secretKey.resize(encryptedKey.keyBits / 8, 0x36);
-	}
+	normalizeKey(secretKey, encryptedKey.keyBits / 8);
 
 	info.encryptedKeyValue = cipher(encryptedKey.cipherName, secretKey, skey3, iv, cybozu::crypto::Cipher::Encoding);
 

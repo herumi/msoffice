@@ -2,30 +2,30 @@
 
 # Environment
 
-* 64-bit Windows Visual Studio 2012
+* 64-bit Windows Visual Studio 2012 or later
 * gcc 4.6, clang 3.0 or later
 
 # How to make
 
 Linux
-
+```
     mkdir work
     git clone https://github.com/herumi/cybozulib
     git clone https://github.dev.cybozu.co.jp/herumi/msoffice
     cd msoffice
     make -j RELEASE=1
-
+```
 Windows
-
+```
     mkdir work
     git clone https://github.com/herumi/cybozulib
     git clone https://github.dev.cybozu.co.jp/herumi/msoffice
     git clone https://github.com/herumi/cybozulib_ext # for openssl
     cd msoffice
     open msoffice12.sln and build
-
+```
 # How to use
-
+```
     msoffice-crypt.exe [-d|-e][-o opt][-v][-h] (-p|-ph8|-ph16) pass input [output]
      -d|-e  : decode / encode
      -o opt : 0:use AES128(default), 1: use AES256 for encoding
@@ -36,7 +36,7 @@ Windows
      input  : input MS Office file
      output : output MS Office file
      -v     : print debug info
-
+```
 # Return code
 
 * 0 success
@@ -47,6 +47,11 @@ Windows
 # Support format
 
 Office 2010 or later Office Document format which suffix is pptx, docx, xlsx.
+
+# License
+BSD 3-Clause License
+
+Copyright (c) 2015 Cybozu Labs, Inc. All rights reserved.
 
 # References
 

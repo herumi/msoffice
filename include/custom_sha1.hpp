@@ -1,6 +1,8 @@
 #pragma once
 /**
 	@file custom sha1
+	@brief simd version of sha1
+	Copyright (C) 2012 Cybozu Labs, Inc., all rights reserved.
 */
 
 //#define SHA1_DONT_USE_CYBOZULIB

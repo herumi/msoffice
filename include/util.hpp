@@ -1,4 +1,9 @@
 #pragma once
+/**
+	@file
+	@brief MS Office encryption util
+	Copyright (C) 2012 Cybozu Labs, Inc., all rights reserved.
+*/
 #include <string>
 #include <cybozu/atoi.hpp>
 #include <cybozu/itoa.hpp>
@@ -23,6 +28,12 @@ inline int& debugInstance()
 inline void setDebug(int level)
 {
 	debugInstance() = level;
+}
+
+inline bool& putSecretKeyInstance()
+{
+	static bool putSecretKey;
+	return putSecretKey;
 }
 
 inline bool isDebug(int level = 0) { return debugInstance() > level; }

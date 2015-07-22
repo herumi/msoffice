@@ -1,5 +1,7 @@
 #pragma once
-
+/**
+	Copyright (C) 2012 Cybozu Labs, Inc., all rights reserved.
+*/
 #include <cybozu/inttype.hpp>
 #include <stdio.h>
 #include <assert.h>

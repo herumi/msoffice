@@ -3,11 +3,10 @@
 	@file
 	@brief MS Office password atack
 	Copyright (C) 2013 Cybozu Labs, Inc., all rights reserved.
-	see [MS-OFFCRYPTO]
-	Office Document Cryptography Structure Specification
 */
 #include <fstream>
 #include <assert.h>
+#include <math.h>
 #include <cybozu/mmap.hpp>
 #include <cybozu/minixml.hpp>
 #include <cybozu/time.hpp>
@@ -21,6 +20,26 @@
 #include "decode.hpp"
 
 namespace ms {
+
+inline void setPass(std::string& pass, size_t idx, size_t passLen, const std::string& passCharTbl)
+{
+	pass.resize(passLen * 2);
+	const size_t passCharNum = passCharTbl.size();
+	for (size_t i = 0; i < passCharNum; i++) {
+		size_t q = idx / passCharNum;
+		size_t r = idx % passCharNum;
+		pass[(passLen - 1 - i) * 2] = passCharTbl[r];
+		pass[(passLen - 1 - i) * 2 + 1] = 0;
+		idx = q;
+	}
+}
+
+inline void putPass(const std::string& pass)
+{
+	for (size_t i = 0; i < pass.size(); i += 2) {
+		putchar(pass[i]);
+	}
+}
 
 struct Attack {
 	std::string correctPass;
@@ -162,6 +181,29 @@ struct Attack {
 			}
 		}
 #endif
+	}
+	Attack(const char *data, uint32_t dataSize, size_t passLen)
+		: threadNum(0)
+	{
+		ms::cfb::CompoundFile cfb(data, dataSize);
+		cfb.put();
+		const EncryptionInfo info(GetContensByName(cfb, "EncryptionInfo")); // xml
+		printf("spinCount=%d\n", info.spinCount);
+		const std::string passCharTbl = "0123456789";
+		const size_t passCharNum = passCharTbl.size();
+		const size_t n = (size_t)pow(passCharNum, (double)passLen);
+		printf("pass charNum = %d, len = %d, n = %lld\n", (int)passCharNum, (int)passLen, (long long)n);
+		std::string pass;
+		pass.resize(passLen * 2);
+		for (size_t idx = 0; idx < n; idx++) {
+			setPass(pass, idx, passLen, passCharTbl);
+			if ((idx % 100) == 0) printf("idx=%d\n", (int)idx);
+			if (verifyPassword(info, pass)) {
+				printf("found pass "); putPass(pass); putchar('\n');
+				return;
+			}
+		}
+		puts("not found");
 	}
 };
 
