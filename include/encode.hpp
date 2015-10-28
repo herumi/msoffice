@@ -196,13 +196,13 @@ inline bool encode_in(
 	return true;
 }
 
-inline bool encode(const char *data, uint32_t dataSize, const std::string& outFile, const std::string& pass, bool isOffice2013, const std::string& masterKey)
+inline bool encode(const char *data, uint32_t dataSize, const std::string& outFile, const std::string& pass, bool isOffice2013, const std::string& masterKey, int spinCount)
 {
 	std::string encryptedPackage;
 	ms::EncryptionInfo info;
 	const cybozu::crypto::Cipher::Name cipherName = isOffice2013 ? cybozu::crypto::Cipher::N_AES256_CBC : cybozu::crypto::Cipher::N_AES128_CBC;
 	const cybozu::crypto::Hash::Name hashName = isOffice2013 ? cybozu::crypto::Hash::N_SHA512 : cybozu::crypto::Hash::N_SHA1;
-	encode_in(encryptedPackage, info, std::string(data, dataSize), cipherName, hashName, 10000, pass, masterKey);
+	encode_in(encryptedPackage, info, std::string(data, dataSize), cipherName, hashName, spinCount, pass, masterKey);
 	const std::string encryptionInfoStr = info.addHeader(info.toXml(isOffice2013));
 	dprintf("encryptionInfoStr size=%d\n", (int)encryptionInfoStr.size());
 	ms::cfb::CompoundFile cfb;

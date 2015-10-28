@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
 	std::string secretKeyHex;
 	bool doEncode = false, doDecode = false, doView = false;
 	int encMode = 0;
+	int spinCount = 0;
 	bool debug = false;
 	bool debug2 = false;
 	bool putSecretKey = false;
@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
 	opt.appendOpt(&keyFile, "", "by", "(experimental) extract secret key from this file");
 	opt.appendBoolOpt(&doEncode, "e", "encode");
 	opt.appendBoolOpt(&doDecode, "d", "decode");
+	opt.appendOpt(&spinCount, 100000, "c", "spin count");
 	opt.appendBoolOpt(&putSecretKey, "psk", "print secret key");
 	opt.appendBoolOpt(&debug, "v", "print debug info");
 	opt.appendBoolOpt(&debug2, "vv", "print debug info and save binary data");
@@ -125,7 +127,7 @@ int main(int argc, char *argv[])
 			return 2;
 		}
 		bool isOffice2013 = encMode == 1;
-		ms::encode(data, dataSize, outFile, passData, isOffice2013, secretKey);
+		ms::encode(data, dataSize, outFile, passData, isOffice2013, secretKey, spinCount);
 	} else {
 		if (format == ms::fZip) {
 			printf("already decrypted\n");
