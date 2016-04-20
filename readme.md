@@ -22,7 +22,7 @@ Windows
     git clone https://github.dev.cybozu.co.jp/herumi/msoffice
     git clone https://github.com/herumi/cybozulib_ext # for openssl
     cd msoffice
-    open msoffice12.sln and build
+    mk.bat ; or open msoffice12.sln and build
 ```
 # How to use
 ```
