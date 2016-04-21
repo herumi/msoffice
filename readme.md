@@ -63,5 +63,4 @@ Copyright (c) 2015 Cybozu Labs, Inc. All rights reserved.
 [[MS-CFB]](http://msdn.microsoft.com/en-us/library/dd942138.aspx)
 * Office Document Cryptography Structure Specification(v20120412)
 [[MS-OFFCRYPTO]](http://msdn.microsoft.com/en-us/library/cc313071.aspx)
-
-http://stricture-group.com/files/adobe-top100.txt
+* CODE BLUE 2015 [[Backdoors with the MS Office file encryption master key and a proposal for a reliable file format]](http://www.slideshare.net/herumi/backdoors-with-the-ms-office-file-encryption-master-key-and-a-proposal-for-a-reliable-file-format)
