@@ -30,33 +30,26 @@ inline cybozu::String16 fromUniHex(const std::string& str)
 	return ret;
 }
 
-const char supportSuffixTbl[][8] = {
-	"pptx",
-	"xlsx",
-	"docx",
-	"pptm",
-	"xlsm",
-	"docm",
+const char denySuffixTbl[][8] = {
+	"xls",
+	"xlt",
+	"xla",
+
+	"ppt",
+	"pot",
+	"pps",
+	"ppa",
+
+	"doc",
+	"dot",
 };
 
-bool supportsSuffix(const std::string& suf)
+bool denySuffix(const std::string& suf)
 {
-	for (size_t i = 0; i < CYBOZU_NUM_OF_ARRAY(supportSuffixTbl); i++) {
-		if (suf == supportSuffixTbl[i]) return true;
+	for (size_t i = 0; i < CYBOZU_NUM_OF_ARRAY(denySuffixTbl); i++) {
+		if (suf == denySuffixTbl[i]) return true;
 	}
 	return false;
-}
-
-std::string getSupportSuffixStr()
-{
-	std::string s;
-	for (size_t i = 0; i < CYBOZU_NUM_OF_ARRAY(supportSuffixTbl); i++) {
-		if (!s.empty()) {
-			s += ", ";
-		}
-		s += supportSuffixTbl[i];
-	}
-	return s;
 }
 
 int main(int argc, char *argv[])
@@ -128,8 +121,8 @@ int main(int argc, char *argv[])
 	if (outFile.empty()) {
 		std::string suf;
 		const std::string base = cybozu::GetBaseName(inFile, &suf);
-		if (!supportsSuffix(suf)) {
-			printf("bad input file [%s]. support only %s\n", inFile.c_str(), getSupportSuffixStr().c_str());
+		if (denySuffix(suf)) {
+			printf("bad input file [%s]. does not support %s\n", inFile.c_str(), suf.c_str());
 			return 1;
 		}
 		outFile = base +(doEncode ? "_e." : "_d.") + suf;
