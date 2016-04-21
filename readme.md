@@ -25,6 +25,16 @@ Windows
     mk.bat ; or open msoffice12.sln and build
 ```
 # How to use
+* Encrypt test.xlsx with a password `test`.
+```
+bin/msoffice-crypt.exe -e -p test test.xlsx enc.xlsx
+```
+* Decrypt enc.xlsx with a password `test`.
+```
+bin/msoffice-crypt.exe -d -p test enc.xlsx dec.xlsx
+```
+
+* Other options
 ```
 usage:msoffice-crypt.exe [opt] input output
   -h : show this message
