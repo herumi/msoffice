@@ -26,16 +26,20 @@ Windows
 ```
 # How to use
 ```
-    msoffice-crypt.exe [-d|-e][-o opt][-v][-h] (-p|-ph8|-ph16) pass input [output]
-     -d|-e  : decode / encode
-     -o opt : 0:use AES128(default), 1: use AES256 for encoding
-     -h     : print help
-     -p     : password in only ascii
-     -ph8   : password in utf8 hex. ex. 68656C6C6F for 'hello'
-     -ph16  : password in utf16 hex. ex. u3042u3044u3046 for 'あいう'
-     input  : input MS Office file
-     output : output MS Office file
-     -v     : print debug info
+usage:msoffice-crypt.exe [opt] input output
+  -h : show this message
+  -p password in only ascii
+  -encMode 0:use AES128(default), 1: use AES256 for encoding
+  -ph8 password in utf8 hex. ex. 68656C6C6F for 'hello'
+  -ph16 password in utf16 hex. ex. u3042u3044u3046 for 'aiu' in hiragana
+  -k (experimental) secret key in hex. ex. 0123456789ABCDEF0123456789ABCDEF
+  -by (experimental) extract secret key from this file
+  -e encode
+  -d decode
+  -c spin count
+  -psk print secret key
+  -v print debug info
+  -vv print debug info and save binary data
 ```
 # Return code
 
