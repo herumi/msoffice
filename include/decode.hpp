@@ -8,6 +8,7 @@
 */
 #include <fstream>
 #include <cybozu/mmap.hpp>
+#include <cybozu/file.hpp>
 #include <cybozu/minixml.hpp>
 #include <cybozu/atoi.hpp>
 #include <cybozu/crypto.hpp>
@@ -183,7 +184,8 @@ inline bool decodeStandardEncryption(std::string& dec, const std::string& encryp
 	return true;
 }
 
-inline bool decode(const char *data, uint32_t dataSize, const std::string& outFile, const std::string& pass, std::string secretKey, bool doView)
+template<class String>
+bool decode(const char *data, uint32_t dataSize, const String& outFile, const std::string& pass, std::string secretKey, bool doView)
 {
 	ms::cfb::CompoundFile cfb(data, dataSize);
 	cfb.put();
@@ -200,9 +202,9 @@ inline bool decode(const char *data, uint32_t dataSize, const std::string& outFi
 	}
 	if (!doView) {
 		DetectFormat(decData.c_str(), decData.size());
-		std::ofstream ofs(outFile.c_str(), std::ios::binary);
-		ofs.write(decData.c_str(), decData.size());
-		if (!ofs) throw cybozu::Exception("ms:decode:save") << outFile;
+		cybozu::File out;
+		out.openW(outFile);
+		out.write(decData.c_str(), decData.size());
 	}
 	return true;
 }

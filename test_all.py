@@ -1,6 +1,6 @@
 import os, sys, subprocess
 
-EXE='bin/msoffice-cryptd.exe'
+EXE='bin/msoffice-crypt.exe'
 INP='data'
 OUT='out'
 
