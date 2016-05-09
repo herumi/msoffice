@@ -196,7 +196,8 @@ inline bool encode_in(
 	return true;
 }
 
-inline bool encode(const char *data, uint32_t dataSize, const std::string& outFile, const std::string& pass, bool isOffice2013, const std::string& masterKey, int spinCount)
+template<class String>
+bool encode(const char *data, uint32_t dataSize, const String& outFile, const std::string& pass, bool isOffice2013, const std::string& masterKey, int spinCount)
 {
 	std::string encryptedPackage;
 	ms::EncryptionInfo info;
@@ -210,9 +211,9 @@ inline bool encode(const char *data, uint32_t dataSize, const std::string& outFi
 	std::string outData;
 	makeLayout(outData, cfb);
 	{
-		std::ofstream ofs(outFile.c_str(), std::ios::binary);
-		ofs.write(outData.c_str(), outData.size());
-		if (!ofs) throw cybozu::Exception("ms:encode:write") << outData;
+		cybozu::File out;
+		out.openW(outFile);
+		out.write(outData.c_str(), outData.size());
 	}
 	return true;
 }

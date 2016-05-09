@@ -78,8 +78,8 @@ int main(int argc, char *argv[])
 #endif
 //	std::locale::global(std::locale(""));
 
-	std::string inFile;
-	std::string outFile;
+	std::string inFileA;
+	std::string outFileA;
 	std::string keyFile;
 	std::string pass;
 	std::string pstr, ph8str, ph16str;
@@ -106,8 +106,8 @@ int main(int argc, char *argv[])
 	opt.appendBoolOpt(&debug, "v", "print debug info");
 	opt.appendBoolOpt(&debug2, "vv", "print debug info and save binary data");
 	opt.appendHelp("h");
-	opt.appendParam(&inFile, "input");
-	opt.appendParamOpt(&outFile, "", "output");
+	opt.appendParam(&inFileA, "input");
+	opt.appendParamOpt(&outFileA, "", "output");
 
 	if (!opt.parse(argc, argv)) {
 		opt.usage();
@@ -139,16 +139,16 @@ int main(int argc, char *argv[])
 		opt.usage();
 	}
 
-	if (outFile.empty()) {
+	if (outFileA.empty()) {
 		std::string suf;
-		const std::string base = cybozu::GetBaseName(inFile, &suf);
+		const std::string base = cybozu::GetBaseName(inFileA, &suf);
 		if (denySuffix(suf)) {
-			printf("bad input file [%s]. does not support %s\n", inFile.c_str(), suf.c_str());
+			printf("bad input file [%s]. does not support %s\n", inFileA.c_str(), suf.c_str());
 			return 1;
 		}
-		outFile = base +(doEncode ? "_e." : "_d.") + suf;
+		outFileA = base +(doEncode ? "_e." : "_d.") + suf;
 	}
-	printf("inFile=%s, outFile=%s, mode=%s, encMode=%d\n", inFile.c_str(), outFile.c_str(), doEncode ? "enc" : doView ? "view" : "dec", encMode);
+	printf("inFile=%s, outFile=%s, mode=%s, encMode=%d\n", inFileA.c_str(), outFileA.c_str(), doEncode ? "enc" : doView ? "view" : "dec", encMode);
 	if (!secretKey.empty()) {
 		printf("set secretKey = "); ms::dump(secretKey, false);
 	}
@@ -156,19 +156,24 @@ int main(int argc, char *argv[])
 		printf("keyFile = %s\n", keyFile.c_str());
 	}
 	const std::string passData = ms::Char16toChar8(wpass);
+
 #ifdef _MSC_VER
-	std::wstring inFileW;
-	cybozu::ConvertUtf8ToUtf16(&inFileW, inFile);
-	cybozu::Mmap m(inFileW);
+	std::wstring inFile;
+	std::wstring outFile;
+	cybozu::ConvertUtf8ToUtf16(&inFile, inFileA);
+	cybozu::ConvertUtf8ToUtf16(&outFile, outFileA);
 #else
-	cybozu::Mmap m(inFile);
+	const std::string inFile = inFileA;
+	const std::string outFile = outFileA;
 #endif
+	cybozu::Mmap m(inFile);
 	const char *data = m.get();
 	if (m.size() > 0xffffffff) {
 		throw cybozu::Exception("ms:encode:m.size") << m.size();
 	}
 	const uint32_t dataSize = static_cast<uint32_t>(m.size());
 	const ms::Format format = ms::DetectFormat(data, dataSize);
+
 
 	if (doEncode) {
 		if (format == ms::fCfb) {
@@ -186,13 +191,7 @@ int main(int argc, char *argv[])
 			secretKey = ms::getSecretKey(keyFile, passData);
 			printf("get secretKey = "); ms::dump(secretKey, false);
 		}
-#ifdef _MSC_VER
-		std::wstring outFileW;
-		cybozu::ConvertUtf8ToUtf16(&outFileW, outFile);
-		bool ok = ms::decode(data, dataSize, outFileW, passData, secretKey, doView);
-#else
 		bool ok = ms::decode(data, dataSize, outFile, passData, secretKey, doView);
-#endif
 		if (!ok) {
 			printf("bad password\n");
 			return 3;
