@@ -16,6 +16,9 @@
 #include "decode.hpp"
 #include "encode.hpp"
 #include "make_dataspace.hpp"
+#ifdef _MSC_VER
+#include <cybozu/string.hpp>
+#endif
 
 inline cybozu::String16 fromUniHex(const std::string& str)
 {
@@ -52,9 +55,27 @@ bool denySuffix(const std::string& suf)
 	return false;
 }
 
+#ifdef _MSC_VER
+int wmain(int argc, wchar_t *wargv[])
+#else
 int main(int argc, char *argv[])
+#endif
 	try
 {
+#ifdef _MSC_VER
+	std::vector<std::string> strVec;
+	for (size_t i = 0; i < argc; i++) {
+		const std::wstring s = __wargv[i];
+		std::string utf8;
+		cybozu::ConvertUtf16ToUtf8(&utf8, s);
+		strVec.push_back(utf8);
+	}
+	std::vector<char*> ptrVec(argc);
+	for (size_t i = 0; i < argc; i++) {
+		ptrVec[i] = &strVec[i][0];
+	}
+	char **argv = &ptrVec[0];
+#endif
 //	std::locale::global(std::locale(""));
 
 	std::string inFile;
@@ -135,7 +156,13 @@ int main(int argc, char *argv[])
 		printf("keyFile = %s\n", keyFile.c_str());
 	}
 	const std::string passData = ms::Char16toChar8(wpass);
+#ifdef _MSC_VER
+	std::wstring inFileW;
+	cybozu::ConvertUtf8ToUtf16(&inFileW, inFile);
+	cybozu::Mmap m(inFileW);
+#else
 	cybozu::Mmap m(inFile);
+#endif
 	const char *data = m.get();
 	if (m.size() > 0xffffffff) {
 		throw cybozu::Exception("ms:encode:m.size") << m.size();
@@ -159,7 +186,14 @@ int main(int argc, char *argv[])
 			secretKey = ms::getSecretKey(keyFile, passData);
 			printf("get secretKey = "); ms::dump(secretKey, false);
 		}
-		if (!ms::decode(data, dataSize, outFile, passData, secretKey, doView)) {
+#ifdef _MSC_VER
+		std::wstring outFileW;
+		cybozu::ConvertUtf8ToUtf16(&outFileW, outFile);
+		bool ok = ms::decode(data, dataSize, outFileW, passData, secretKey, doView);
+#else
+		bool ok = ms::decode(data, dataSize, outFile, passData, secretKey, doView);
+#endif
+		if (!ok) {
 			printf("bad password\n");
 			return 3;
 		}
