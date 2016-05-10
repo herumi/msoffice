@@ -110,7 +110,7 @@ inline bool getAgileSecretKey(std::string& secretKey, const EncryptionInfo& info
 	return true;
 }
 
-inline bool decodeAgile(std::string& decData, const std::string& encryptedPackage, const EncryptionInfo& info, const std::string& pass, std::string secretKey)
+inline bool decodeAgile(std::string& decData, const std::string& encryptedPackage, const EncryptionInfo& info, const std::string& pass, std::string& secretKey)
 {
 	const CipherParam& keyData = info.keyData;
 	const CipherParam& encryptedKey = info.encryptedKey;
@@ -184,14 +184,20 @@ inline bool decodeStandardEncryption(std::string& dec, const std::string& encryp
 	return true;
 }
 
+/*
+	secretKey will be set if it is empty
+*/
 template<class String>
-bool decode(const char *data, uint32_t dataSize, const String& outFile, const std::string& pass, std::string secretKey, bool doView)
+bool decode(const char *data, uint32_t dataSize, const String& outFile, const std::string& pass, std::string& secretKey, bool doView, int *pSpinCount = 0)
 {
 	ms::cfb::CompoundFile cfb(data, dataSize);
 	cfb.put();
 
 	const std::string& encryptedPackage = GetContensByName(cfb, "EncryptedPackage"); // data
 	const EncryptionInfo info(GetContensByName(cfb, "EncryptionInfo")); // xml
+	if (pSpinCount) {
+		*pSpinCount = info.spinCount;
+	}
 	info.put();
 
 	std::string decData;

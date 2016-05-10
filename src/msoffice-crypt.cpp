@@ -81,7 +81,6 @@ int main(int argc, char *argv[])
 	std::string inFileA;
 	std::string outFileA;
 	std::string keyFile;
-	std::string pass;
 	std::string pstr, ph8str, ph16str;
 	cybozu::String16 wpass;
 	std::string secretKeyHex;
