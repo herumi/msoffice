@@ -62,6 +62,24 @@ usage:msoffice-crypt.exe [opt] input output
 
 Office 2010 or later Office Document format which suffix is pptx, docx, xlsx.
 
+# DLL for Windows
+msoc.dll (Microsoft Office Crypto)
+
+* [binary](https://github.com/herumi/msoffice/raw/master/bin/msoc.dll)
+* [msoc.dll](https://github.com/herumi/msoffice/raw/master/bin/msoc.dll)
+* [sample code](https://github.com/herumi/msoffice/blob/master/src/msocsample.c)
+
+* Encrypt `inFile` with `pass` and make `outFile`.
+```
+MSOC_encrypt(outFile, inFile, pass, NULL);
+```
+* Decrypt `inFile` with `pass` and make `outFile`.
+```
+MSOC_decrypt(outFile, inFile, pass, NULL);
+```
+## Remark
+The type of `inFile`, `outFile` and `pass` are `const wchar_t*`(UTF-16 string).
+
 # License
 BSD 3-Clause License
 
