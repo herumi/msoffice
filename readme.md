@@ -65,9 +65,8 @@ Office 2010 or later Office Document format which suffix is pptx, docx, xlsx.
 # DLL for Windows
 msoc.dll (Microsoft Office Crypto)
 
-* [binary](https://github.com/herumi/msoffice/raw/master/bin/msoc.dll)
 * [msoc.dll](https://github.com/herumi/msoffice/raw/master/bin/msoc.dll)
-* [sample code](https://github.com/herumi/msoffice/blob/master/src/msocsample.c)
+* [msoc.h](https://github.com/herumi/msoffice/blob/master/include/msoc.h)
 
 * Encrypt `inFile` with `pass` and make `outFile`.
 ```
@@ -79,6 +78,7 @@ MSOC_decrypt(outFile, inFile, pass, NULL);
 ```
 ## Remark
 The type of `inFile`, `outFile` and `pass` are `const wchar_t*`(UTF-16 string).
+See [sample code](https://github.com/herumi/msoffice/blob/master/src/msocsample.c).
 
 # License
 BSD 3-Clause License
