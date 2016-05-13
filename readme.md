@@ -78,7 +78,8 @@ MSOC_decrypt(outFile, inFile, pass, NULL);
 ```
 ## Remark
 The type of `inFile`, `outFile` and `pass` are `const wchar_t*`(UTF-16 string).
-See [sample code](https://github.com/herumi/msoffice/blob/master/src/msocsample.c).
+See [Csample code](https://github.com/herumi/msoffice/blob/master/src/msocsample.c)
+and [Python sample code](https://github.com/herumi/msoffice/blob/master/bin/msocsample.py).
 
 # License
 BSD 3-Clause License
