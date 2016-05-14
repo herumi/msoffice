@@ -4,22 +4,12 @@
 #	@author herumi
 #	Copyright (C) 2016 Cybozu Labs, Inc., all rights reserved.
 import os, sys
+import argparse
 from ctypes import *
 from ctypes.wintypes import LPWSTR, LPCSTR, LPVOID
 
 MSOC_OPT_TYPE_SPIN_COUNT = 1
 MSOC_OPT_TYPE_SECRET_KEY = 2
-
-def usage():
-	s ='''how to use
-msocsample.py enc <inFile> <outFile> <pass>
-msocsample.py dec <inFile> <outFile> <pass>
-msocsample.py opt <inFile> <pass>
-msocsample.py enc-sec <inFile> <outFile> <pass> <secretKey> [<spinCount>]
-msocsample.py dec-sec <inFile> <outFile> <secretKey>
-'''
-	print s
-	os._exit(1)
 
 def getWargv():
 	cmd = cdll.kernel32.GetCommandLineW()
@@ -129,50 +119,56 @@ class Msoc:
 			raise Exception('setOpt not support type', optType)
 
 def main():
+	parser = argparse.ArgumentParser(description='msocsample.py')
+	sub = parser.add_subparsers(dest='mode')
+	enc = sub.add_parser('enc', help='encrypt')
+	enc.add_argument('inFile')
+	enc.add_argument('outFile')
+	enc.add_argument('ps', help='password')
+	enc.add_argument('-sc', '--spinCount', help='spinCount')
+	enc.add_argument('-sk', '--secretKey', help='secretKey')
+
+	dec = sub.add_parser('dec', help='decrypt')
+	dec.add_argument('inFile')
+	dec.add_argument('outFile')
+	dec.add_argument('ps', help='password')
+
+	opt = sub.add_parser('opt', help='view option')
+	opt.add_argument('inFile')
+	opt.add_argument('ps', help='password')
+
+	dec_sk = sub.add_parser('dec-sk', help='decrypt by secret key')
+	dec_sk.add_argument('inFile')
+	dec_sk.add_argument('outFile')
+	dec_sk.add_argument('secretKey')
+
 	argv = getWargv()
 	for pos in xrange(len(argv)):
 		if argv[pos].find('msocsample.py') >= 0:
 			argv = argv[pos + 1:]
 			break
-	argc = len(argv)
 
-	if argc < 3:
-		usage()
+	arg = parser.parse_args(argv)
 
 	msoc = Msoc()
 
-	err = 0
-	if argv[0] == 'dec':
-		if argc != 4:
-			usage()
-		msoc.decrypt(argv[2], argv[1], argv[3])
-	elif argv[0] == 'enc':
-		if argc != 4:
-			usage()
-		msoc.encrypt(argv[2], argv[1], argv[3])
-	elif argv[0] == 'opt':
-		if argc != 3:
-			usage()
-		msoc.decrypt(None, argv[1], argv[2])
+	if getattr(arg, 'secretKey', None) and arg.secretKey:
+		secretKey = wchar2ascii(arg.secretKey)
+		msoc.setOpt(MSOC_OPT_TYPE_SECRET_KEY, secretKey)
+	if getattr(arg, 'spinCount', None) and arg.spinCount:
+		spinCount = int(wchar2ascii(arg.spinCount))
+		msoc.setOpt(MSOC_OPT_TYPE_SPIN_COUNT, spinCount)
+
+	if arg.mode == 'enc':
+		msoc.encrypt(arg.outFile, arg.inFile, arg.ps)
+	elif arg.mode == 'dec':
+		msoc.decrypt(arg.outFile, arg.inFile, arg.ps)
+	elif arg.mode == 'opt':
+		msoc.decrypt(None, arg.inFile, arg.ps)
 		print 'spinCount', msoc.getOpt(MSOC_OPT_TYPE_SPIN_COUNT)
 		print 'secretKey', msoc.getOpt(MSOC_OPT_TYPE_SECRET_KEY)
-	elif argv[0] == 'enc-sec':
-		if argc != 5 and argc != 6:
-			usage()
-		secretKey = wchar2ascii(argv[4])
-		msoc.setOpt(MSOC_OPT_TYPE_SECRET_KEY, secretKey)
-		if argc == 6:
-			spinCount = int(wchar2ascii(argv[5]))
-			msoc.setOpt(MSOC_OPT_TYPE_SPIN_COUNT, spinCount)
-		msoc.encrypt(argv[2], argv[1], argv[3])
-	elif argv[0] == 'dec-sec':
-		if argc != 4:
-			usage()
-		secretKey = wchar2ascii(argv[3])
-		msoc.setOpt(MSOC_OPT_TYPE_SECRET_KEY, secretKey)
-		msoc.decrypt(argv[2], argv[1], None)
-	else:
-		usage()
+	elif arg.mode == 'dec-sk':
+		msoc.decrypt(arg.outFile, arg.inFile, None)
 
 if __name__ == '__main__':
 	main()

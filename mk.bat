@@ -1,1 +1,1 @@
-cl /MT /Ox /EHsc src\msoffice-crypt.cpp -I .\include -I ..\cybozulib\include -I ..\cybozulib_ext\openssl\include -DNOMINMAX -DNDEBUG /Febin\msoffice-crypt.exe /link /LIBPATH:..\cybozulib_ext\lib"
+cl /MT /Ox /EHsc src\msoffice-crypt.cpp -I .\include -I ..\cybozulib\include -I ..\cybozulib_ext\include -DNOMINMAX -DNDEBUG /Febin\msoffice-crypt.exe /link /LIBPATH:..\cybozulib_ext\lib"
