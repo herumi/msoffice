@@ -4,8 +4,10 @@
 	@author herumi
 	Copyright (C) 2016 Cybozu Labs, Inc., all rights reserved.
 */
-#pragma warning(disable : 4456)
-#pragma warning(disable : 4458)
+#ifdef _MSC_VER
+	#pragma warning(disable : 4456)
+	#pragma warning(disable : 4458)
+#endif
 
 #define MSOC_DONT_AUTO_LINK
 #include "cfb.hpp"
@@ -15,9 +17,9 @@
 #include "msoc.h"
 
 static const size_t maxExceptionSize = 1024;
-char g_exception[maxExceptionSize + 1] = "exception";
+static char g_exception[maxExceptionSize + 1] = "exception";
 
-void setException(const std::exception& e)
+static void setException(const std::exception& e)
 {
 	/// QQQ : not multi-thread
 	size_t len = strlen(e.what());
@@ -26,7 +28,7 @@ void setException(const std::exception& e)
 	g_exception[len] = '\0';
 }
 
-__declspec(dllexport) const char *MSOC_getErrMessage(int err)
+MSOC_DLL_EXPORT const char *MSOC_getErrMessage(int err)
 {
 	switch (err) {
 	case MSOC_NOERR:
@@ -66,7 +68,7 @@ struct msoc_opt {
 	}
 };
 
-__declspec(dllexport) msoc_opt *MSOC_createOpt(void)
+MSOC_DLL_EXPORT msoc_opt *MSOC_createOpt(void)
 {
 	try {
 		return new msoc_opt();
@@ -75,12 +77,12 @@ __declspec(dllexport) msoc_opt *MSOC_createOpt(void)
 	}
 }
 
-__declspec(dllexport) void MSOC_destroyOpt(msoc_opt *msoc)
+MSOC_DLL_EXPORT void MSOC_destroyOpt(msoc_opt *msoc)
 {
 	delete(msoc);
 }
 
-__declspec(dllexport) int MSOC_getInt(int *value, const msoc_opt *opt, int optType)
+MSOC_DLL_EXPORT int MSOC_getInt(int *value, const msoc_opt *opt, int optType)
 {
 	switch (optType) {
 	case MSOC_OPT_TYPE_SPIN_COUNT:
@@ -91,7 +93,7 @@ __declspec(dllexport) int MSOC_getInt(int *value, const msoc_opt *opt, int optTy
 	}
 }
 
-__declspec(dllexport) int MSOC_setInt(msoc_opt *opt, int optType, int value)
+MSOC_DLL_EXPORT int MSOC_setInt(msoc_opt *opt, int optType, int value)
 {
 	switch (optType) {
 	case MSOC_OPT_TYPE_SPIN_COUNT:
@@ -110,7 +112,7 @@ static int getStr(char *str, size_t maxSize, const std::string& s)
 	return MSOC_NOERR;
 }
 
-__declspec(dllexport) int MSOC_getStr(char *str, size_t maxSize, const msoc_opt *opt, int optType)
+MSOC_DLL_EXPORT int MSOC_getStr(char *str, size_t maxSize, const msoc_opt *opt, int optType)
 {
 	switch (optType) {
 	case MSOC_OPT_TYPE_SECRET_KEY:
@@ -120,7 +122,7 @@ __declspec(dllexport) int MSOC_getStr(char *str, size_t maxSize, const msoc_opt 
 	}
 }
 
-__declspec(dllexport) int MSOC_setStr(msoc_opt *opt, int optType, const char *str)
+MSOC_DLL_EXPORT int MSOC_setStr(msoc_opt *opt, int optType, const char *str)
 	try
 {
 	switch (optType) {
@@ -134,7 +136,8 @@ __declspec(dllexport) int MSOC_setStr(msoc_opt *opt, int optType, const char *st
 	return MSOC_ERR_NO_MEMORY;
 }
 
-static int readFile(std::string& data, ms::Format& format, uint32_t& dataSize, const wchar_t *inFile)
+template<class T>
+static int readFile(std::string& data, ms::Format& format, uint32_t& dataSize, const T *inFile)
 {
 	cybozu::Mmap m(inFile);
 	if (m.size() > 0xffffffff) {
@@ -146,12 +149,21 @@ static int readFile(std::string& data, ms::Format& format, uint32_t& dataSize, c
 	return MSOC_NOERR;
 }
 
-__declspec(dllexport) int MSOC_encrypt(const wchar_t *outFile, const wchar_t *inFile, const wchar_t *pass, const msoc_opt *opt)
-	try
+/*
+	REMARK : passData is UTF-16 encoded
+	if pass = "abc"
+	passData[0] = 'a'
+	passData[1] = '\0'
+	passData[2] = 'b'
+	passData[3] = '\0'
+	passData[4] = 'c'
+	passData[5] = '\0'
+*/
+template<class T>
+int encrypt(const T *outFile, const T *inFile, const std::string& passData, const msoc_opt *opt)
 {
 	if (outFile == NULL) return MSOC_ERR_OUTFILE_IS_EMPTY;
 	if (inFile == NULL) return MSOC_ERR_INFILE_IS_EMPTY;
-	if (pass == NULL) return MSOC_ERR_PASS_IS_EMPTY;
 	const bool isOffice2013 = true;
 	std::string data;
 	ms::Format format;
@@ -167,17 +179,49 @@ __declspec(dllexport) int MSOC_encrypt(const wchar_t *outFile, const wchar_t *in
 		if (opt->spinCount) spinCount = opt->spinCount;
 		if (!opt->secretKey.empty()) secretKey = ms::fromHex(opt->secretKey);
 	}
-	std::wstring outFileW = outFile;
-	std::string passData = ms::Char16toChar8(pass);
+	std::basic_string<T> outFileW = outFile;
 	ms::encode(data.data(), dataSize, outFileW, passData, isOffice2013, secretKey, spinCount);
 	return MSOC_NOERR;
+}
+
+static std::string convertChar2Wchar(const char *s)
+{
+	if (s == NULL) return "";
+	const size_t len= strlen(s);
+	std::string ret;
+	ret.resize(len * 2);
+	for (size_t i = 0; i < len; i++) {
+		ret[i * 2] = s[i];
+	}
+	return ret;
+}
+
+MSOC_DLL_EXPORT int MSOC_encryptA(const char *outFile, const char *inFile, const char *pass, const msoc_opt *opt)
+	try
+{
+	if (pass == NULL) return MSOC_ERR_PASS_IS_EMPTY;
+	std::string passData = convertChar2Wchar(pass);
+	return encrypt(outFile, inFile, passData, opt);
 } catch (std::exception& e) {
 	setException(e);
 	return MSOC_ERR_EXCEPTION;
 }
 
-__declspec(dllexport) int MSOC_decrypt(const wchar_t *outFile, const wchar_t *inFile, const wchar_t *pass, msoc_opt *opt)
+#ifdef _MSC_VER
+MSOC_DLL_EXPORT int MSOC_encrypt(const wchar_t *outFile, const wchar_t *inFile, const wchar_t *pass, const msoc_opt *opt)
 	try
+{
+	if (pass == NULL) return MSOC_ERR_PASS_IS_EMPTY;
+	std::string passData = ms::Char16toChar8(pass);
+	return encrypt(outFile, inFile, passData, opt);
+} catch (std::exception& e) {
+	setException(e);
+	return MSOC_ERR_EXCEPTION;
+}
+#endif
+
+template<class T>
+int decrypt(const T *outFile, const T *inFile, const std::string& passData, msoc_opt *opt)
 {
 	if (inFile == NULL) return MSOC_ERR_INFILE_IS_EMPTY;
 	const bool doView = outFile == NULL;
@@ -193,13 +237,11 @@ __declspec(dllexport) int MSOC_decrypt(const wchar_t *outFile, const wchar_t *in
 	if (opt) {
 		if (!opt->secretKey.empty()) secretKey = ms::fromHex(opt->secretKey);
 	}
-	std::wstring outFileW;
+	std::basic_string<T> outFileW;
 	if (outFile) {
 		outFileW = outFile;
 	}
 	int spinCount;
-	std::string passData;
-	if (pass) passData = ms::Char16toChar8(pass);
 	bool ok = ms::decode(data.data(), dataSize, outFileW, passData, secretKey, doView, &spinCount);
 	if (!ok) return MSOC_ERR_BAD_PASSWORD;
 	if (opt) {
@@ -207,7 +249,28 @@ __declspec(dllexport) int MSOC_decrypt(const wchar_t *outFile, const wchar_t *in
 		opt->secretKey = ms::hex(secretKey);
 	}
 	return MSOC_NOERR;
+}
+
+MSOC_DLL_EXPORT int MSOC_decryptA(const char *outFile, const char *inFile, const char *pass, msoc_opt *opt)
+	try
+{
+	std::string passData;
+	if (pass) passData = convertChar2Wchar(pass);
+	return decrypt(outFile, inFile, passData, opt);
 } catch (std::exception& e) {
 	setException(e);
 	return MSOC_ERR_EXCEPTION;
 }
+
+#ifdef _MSC_VER
+MSOC_DLL_EXPORT int MSOC_decrypt(const wchar_t *outFile, const wchar_t *inFile, const wchar_t *pass, msoc_opt *opt)
+	try
+{
+	std::string passData;
+	if (pass) passData = ms::Char16toChar8(pass);
+	return decrypt(outFile, inFile, passData, opt);
+} catch (std::exception& e) {
+	setException(e);
+	return MSOC_ERR_EXCEPTION;
+}
+#endif

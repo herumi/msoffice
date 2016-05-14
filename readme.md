@@ -63,7 +63,7 @@ usage:msoffice-crypt.exe [opt] input output
 Office 2010 or later Office Document format which suffix is pptx, docx, xlsx.
 
 # DLL for Windows
-msoc.dll (Microsoft Office Crypto)
+* msoc.dll (Microsoft Office Crypto)
 
 * [msoc.dll](https://github.com/herumi/msoffice/raw/master/bin/msoc.dll)
 * [msoc.h](https://github.com/herumi/msoffice/blob/master/include/msoc.h)
@@ -80,6 +80,21 @@ MSOC_decrypt(outFile, inFile, pass, NULL);
 The type of `inFile`, `outFile` and `pass` are `const wchar_t*`(UTF-16 string).
 See [Csample code](https://github.com/herumi/msoffice/blob/master/src/msocsample.c)
 and [Python sample code](https://github.com/herumi/msoffice/blob/master/bin/msocsample.py).
+
+# lib for Linux
+* libmsoc.lib
+
+* Encrypt `inFile` with `pass` and make `outFile`.
+```
+MSOC_encryptA(outFile, inFile, pass, NULL);
+```
+* Decrypt `inFile` with `pass` and make `outFile`.
+```
+MSOC_decryptA(outFile, inFile, pass, NULL);
+```
+## Remark
+The type of `inFile`, `outFile` and `pass` are `const char*`(ascii string).
+See [mini C sample code](https://github.com/herumi/msoffice/blob/master/src/minisample.c).
 
 # License
 BSD 3-Clause License

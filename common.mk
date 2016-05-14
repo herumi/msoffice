@@ -9,7 +9,7 @@ CFLAGS = -g -D_FILE_OFFSET_BITS=64 -msse2 -fno-operator-names
 CFLAGS+=$(CFLAGS_WARN)
 LDFLAGS = -lcrypto -lssl
 
-DEBUG=1
+DEBUG=0
 ifeq ($(RELEASE),1)
 	DEBUG=0
 endif

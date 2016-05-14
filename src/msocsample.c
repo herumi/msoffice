@@ -6,7 +6,6 @@
 */
 #include "msoc.h"
 #include <stdio.h>
-//#include <string.h>
 
 void usage()
 {
