@@ -1,4 +1,4 @@
-# decoder/encoder of Microsoft Office Document Cryptography
+# A tool/lib to encrypt/decrypt Microsoft Office Document
 
 # Environment
 
