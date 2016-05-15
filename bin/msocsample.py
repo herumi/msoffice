@@ -29,6 +29,12 @@ def wchar2ascii(w):
 		s += c
 	return s
 
+def putErrMsg(lib, err):
+	MSOC_getErrMessage = lib.MSOC_getErrMessage
+	MSOC_getErrMessage.restype = LPCSTR
+	print 'ERR', MSOC_getErrMessage(err)
+	os._exit(1)
+
 def _createOpt(lib):
 	opt = c_void_p(0)
 	MSOC_createOpt = lib.MSOC_createOpt
@@ -46,49 +52,43 @@ def _getInt(lib, opt, optType):
 	intv = c_int(0)
 	err = lib.MSOC_getInt(byref(intv), opt, optType)
 	if err:
-		putErrMsg(err)
+		putErrMsg(lib, err)
 	return intv.value
 
 def _setInt(lib, opt, optType, v):
 	err = lib.MSOC_setInt(opt, optType, v)
 	if err:
-		putErrMsg(err)
+		putErrMsg(lib, err)
 
 def _getStr(lib, opt, optType):
 	svLen = 256
 	sv = create_string_buffer('\0' * svLen)
 	err = lib.MSOC_getStr(sv, svLen, opt, optType)
 	if err:
-		putErrMsg(err)
+		putErrMsg(lib, err)
 	return sv.value
 
 def _setStr(lib, opt, optType, s):
 	cs = c_char_p(s)
 	err = lib.MSOC_setStr(opt, optType, cs)
 	if err:
-		putErrMsg(err)
+		putErrMsg(lib, err)
 
 class Msoc:
 	def __init__(self):
 		self.lib = cdll.LoadLibrary('bin/msoc.dll')
-		self._opt = _createOpt(self.lib)
+		self.opt = _createOpt(self.lib)
 	def __del__(self):
-		_destroyOpt(self.lib, self._opt)
-
-	def putErrMsg(self, err):
-		MSOC_getErrMessage = self.lib.MSOC_getErrMessage
-		MSOC_getErrMessage.restype = LPCSTR
-		print 'ERR', MSOC_getErrMessage(err)
-		os._exit(1)
+		_destroyOpt(self.lib, self.opt)
 
 	def encrypt(self, outFile, inFile, ps):
 		outFileW = c_wchar_p(outFile)
 		inFileW = c_wchar_p(inFile)
 		psW = c_wchar_p(ps)
-		# permit self._opt is None
-		err = self.lib.MSOC_encrypt(outFileW, inFileW, psW, self._opt)
+		# permit self.opt is None
+		err = self.lib.MSOC_encrypt(outFileW, inFileW, psW, self.opt)
 		if err:
-			self.putErrMsg(err)
+			putErrMsg(self.lib, err)
 
 	def decrypt(self, outFile, inFile, ps):
 		if outFile:
@@ -97,24 +97,24 @@ class Msoc:
 			outFileW = None
 		inFileW = c_wchar_p(inFile)
 		psW = c_wchar_p(ps)
-		# permit self._opt is None
-		err = self.lib.MSOC_decrypt(outFileW, inFileW, psW, self._opt)
+		# permit self.opt is None
+		err = self.lib.MSOC_decrypt(outFileW, inFileW, psW, self.opt)
 		if err:
-			self.putErrMsg(err)
+			putErrMsg(self.lib, err)
 
 	def getOpt(self, optType):
 		if optType in [MSOC_OPT_TYPE_SPIN_COUNT]:
-			return _getInt(self.lib, self._opt, optType)
+			return _getInt(self.lib, self.opt, optType)
 		elif optType in [MSOC_OPT_TYPE_SECRET_KEY]:
-			return _getStr(self.lib, self._opt, optType)
+			return _getStr(self.lib, self.opt, optType)
 		else:
 			raise Exception('getOpt not support type', optType)
 
 	def setOpt(self, optType, v):
 		if optType in [MSOC_OPT_TYPE_SPIN_COUNT]:
-			return _setInt(self.lib, self._opt, optType, v)
+			return _setInt(self.lib, self.opt, optType, v)
 		elif optType in [MSOC_OPT_TYPE_SECRET_KEY]:
-			return _setStr(self.lib, self._opt, optType, v)
+			return _setStr(self.lib, self.opt, optType, v)
 		else:
 			raise Exception('setOpt not support type', optType)
 
