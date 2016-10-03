@@ -5,13 +5,13 @@
 * 64-bit Windows Visual Studio 2012 or later
 * gcc 4.6, clang 3.0 or later
 
-# How to make
+# How to make `bin/msoffice-crypt.exe`
 
 Linux
 ```
     mkdir work
     git clone https://github.com/herumi/cybozulib
-    git clone https://github.dev.cybozu.co.jp/herumi/msoffice
+    git clone https://github.com/herumi/msoffice
     cd msoffice
     make -j RELEASE=1
 ```
@@ -19,7 +19,7 @@ Windows
 ```
     mkdir work
     git clone https://github.com/herumi/cybozulib
-    git clone https://github.dev.cybozu.co.jp/herumi/msoffice
+    git clone https://github.com/herumi/msoffice
     git clone https://github.com/herumi/cybozulib_ext # for openssl
     cd msoffice
     mk.bat ; or open msoffice12.sln and build
