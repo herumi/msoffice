@@ -87,8 +87,9 @@ int main(int argc, char *argv[])
 	bool doEncode = false, doDecode = false, doView = false;
 	int encMode = 0;
 	int spinCount = 0;
-	bool debug = false;
+	bool putEncryptionInfo = false;
 	bool debug2 = false;
+	bool debug3 = false;
 	bool putSecretKey = false;
 
 	cybozu::Option opt;
@@ -102,8 +103,9 @@ int main(int argc, char *argv[])
 	opt.appendBoolOpt(&doDecode, "d", "decode");
 	opt.appendOpt(&spinCount, 100000, "c", "spin count");
 	opt.appendBoolOpt(&putSecretKey, "psk", "print secret key");
-	opt.appendBoolOpt(&debug, "v", "print debug info");
-	opt.appendBoolOpt(&debug2, "vv", "print debug info and save binary data");
+	opt.appendBoolOpt(&putEncryptionInfo, "info", "print EncryptionInfo info");
+	opt.appendBoolOpt(&debug2, "v", "print debug info");
+	opt.appendBoolOpt(&debug3, "vv", "print debug info and save binary data");
 	opt.appendHelp("h");
 	opt.appendParam(&inFileA, "input");
 	opt.appendParamOpt(&outFileA, "", "output");
@@ -112,7 +114,7 @@ int main(int argc, char *argv[])
 		opt.usage();
 		return 1;
 	}
-	ms::setDebug(debug2 ? 2 : debug ? 1 : 0);
+	ms::setDebug(debug3 ? 3 : debug2 ? 2 : putEncryptionInfo ? 1 : 0);
 	if (!pstr.empty()) {
 		wpass = cybozu::ToUtf16(pstr);
 	}

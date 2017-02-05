@@ -109,6 +109,16 @@ struct CipherParam {
 		, hashSize(0)
 	{
 	}
+	void put() const
+	{
+		printf("cipherName = %s\n", cipherNameStr.c_str());
+		printf("saltSize = %d\n", (int)saltSize);
+		printf("blockSize = %d\n", (int)blockSize);
+		printf("keyBits = %d\n", (int)keyBits);
+		printf("hashName = %s\n", hashNameStr.c_str());
+		printf("hashSize = %d\n", hashSize);
+		printf("saltValue = "); dump(saltValue, false);
+	}
 	explicit CipherParam(const cybozu::minixml::Node *node)
 	{
 		setByXml(node);
@@ -257,8 +267,25 @@ struct EncryptionInfo {
 	}
 	void put() const
 	{
-		if (!isDebug()) return;
-		printf("spinCount = %d, major = %d, minor = %d\n", spinCount, major, minor);
+		if (!isDebug(0)) return;
+		printf("major = %d\n", major);
+		printf("minor = %d\n", minor);
+		printf("isStandardEncryption = %d\n", isStandardEncryption);
+		if (isStandardEncryption) {
+			seHeader.put();
+			seVerifier.put();
+		} else {
+			printf("spinCount = %d\n", spinCount);
+			puts("keyData");
+			keyData.put();
+			printf("encryptedHmacKey = "); dump(encryptedHmacKey, false);
+			printf("encryptedHmacValue = "); dump(encryptedHmacValue, false);
+			puts("encryptedKey");
+			encryptedKey.put();
+			printf("encryptedVerifierHashInput = "); dump(encryptedVerifierHashInput, false);
+			printf("encryptedVerifierHashValue = "); dump(encryptedVerifierHashValue, false);
+			printf("encryptedKeyValue = "); dump(encryptedKeyValue, false);
+		}
 	}
 
 	void setStandardEncryptionInfo(const std::string& data)

@@ -71,14 +71,13 @@ struct EncryptionHeader {
 	}
 	void put() const
 	{
-		if (!isDebug()) return;
-		printf("flags : %08x\n", flags);
-		printf("sizeExtra : %u\n", sizeExtra);
-		printf("algId : %08x\n", algId);
-		printf("algIdHash : %08x\n", algIdHash);
-		printf("keySize : %u\n", keySize);
-		printf("providerType : %08x\n", providerType);
-		printf("cspName : %s\n", cybozu::ToUtf8(cspName).c_str());
+		printf("flags = %08x\n", flags);
+		printf("sizeExtra = %u\n", sizeExtra);
+		printf("algId = %08x\n", algId);
+		printf("algIdHash = %08x\n", algIdHash);
+		printf("keySize = %u\n", keySize);
+		printf("providerType = %08x\n", providerType);
+		printf("cspName = %s\n", cybozu::ToUtf8(cspName).c_str());
 	}
 };
 
@@ -135,12 +134,11 @@ struct EncryptionVerifier {
 	}
 	void put() const
 	{
-		if (!isDebug()) return;
-		printf("saltSize : %d\n", saltSize);
-		printf("salt : "); ms::dump(salt);
-		printf("encryptedVerifier : "); ms::dump(encryptedVerifier);
-		printf("verifierHashSize : %d\n", verifierHashSize);
-		printf("encryptedVerifierHash : "); ms::dump(encryptedVerifierHash);
+		printf("saltSize = %d\n", saltSize);
+		printf("salt = "); ms::dump(salt);
+		printf("encryptedVerifier = "); ms::dump(encryptedVerifier);
+		printf("verifierHashSize = %d\n", verifierHashSize);
+		printf("encryptedVerifierHash = "); ms::dump(encryptedVerifierHash);
 	}
 };
 

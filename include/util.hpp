@@ -36,7 +36,7 @@ inline bool& putSecretKeyInstance()
 	return putSecretKey;
 }
 
-inline bool isDebug(int level = 0) { return debugInstance() > level; }
+inline bool isDebug(int level = 1) { return debugInstance() > level; }
 
 inline void dprintf(const char *format, ...)
 {

@@ -60,7 +60,7 @@ struct Option {
 			opt.usage();
 			exit(1);
 		}
-		if (debug) ms::setDebug(1);
+		if (debug) ms::setDebug(2);
 		if (charSetFile.empty()) {
 			charSet = "abcdefghijklmnopqrstuvwxyz"
 			          "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
