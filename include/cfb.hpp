@@ -550,7 +550,7 @@ struct DirectoryEntry {
 			printf("data=<empty>\n");
 		} else {
 			if (isDebug(1)) {
-				std::string fileName = std::string("dump_") + cybozu::ToUtf8(directoryEntryName);
+				std::string fileName = cybozu::ToUtf8(directoryEntryName) + ".dump";
 				for (size_t i = 0; i < fileName.size(); i++) {
 					char c = fileName[i];
 					if (!isprint(c)) fileName[i] = '_';
