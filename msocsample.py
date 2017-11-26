@@ -76,7 +76,11 @@ def _setStr(lib, opt, optType, s):
 
 class Msoc:
 	def __init__(self):
-		self.lib = cdll.LoadLibrary('bin/msoc.dll')
+		if sys.maxsize > 2**32:
+			dll = 'bin/64/msoc.dll'
+		else:
+			dll = 'bin/msoc.dll'
+		self.lib = windll.LoadLibrary(dll)
 		self.opt = _createOpt(self.lib)
 	def __del__(self):
 		_destroyOpt(self.lib, self.opt)

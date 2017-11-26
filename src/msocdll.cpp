@@ -28,7 +28,7 @@ static void setException(const std::exception& e)
 	g_exception[len] = '\0';
 }
 
-MSOC_DLL_EXPORT const char *MSOC_getErrMessage(int err)
+const char * MSOC_DLL_EXPORT MSOC_getErrMessage(int err)
 {
 	switch (err) {
 	case MSOC_NOERR:
@@ -68,7 +68,7 @@ struct msoc_opt {
 	}
 };
 
-MSOC_DLL_EXPORT msoc_opt *MSOC_createOpt(void)
+msoc_opt * MSOC_DLL_EXPORT MSOC_createOpt(void)
 {
 	try {
 		return new msoc_opt();
@@ -77,12 +77,12 @@ MSOC_DLL_EXPORT msoc_opt *MSOC_createOpt(void)
 	}
 }
 
-MSOC_DLL_EXPORT void MSOC_destroyOpt(msoc_opt *msoc)
+void MSOC_DLL_EXPORT MSOC_destroyOpt(msoc_opt *msoc)
 {
 	delete(msoc);
 }
 
-MSOC_DLL_EXPORT int MSOC_getInt(int *value, const msoc_opt *opt, int optType)
+int MSOC_DLL_EXPORT MSOC_getInt(int *value, const msoc_opt *opt, int optType)
 {
 	switch (optType) {
 	case MSOC_OPT_TYPE_SPIN_COUNT:
@@ -93,7 +93,7 @@ MSOC_DLL_EXPORT int MSOC_getInt(int *value, const msoc_opt *opt, int optType)
 	}
 }
 
-MSOC_DLL_EXPORT int MSOC_setInt(msoc_opt *opt, int optType, int value)
+int MSOC_DLL_EXPORT MSOC_setInt(msoc_opt *opt, int optType, int value)
 {
 	switch (optType) {
 	case MSOC_OPT_TYPE_SPIN_COUNT:
@@ -112,7 +112,7 @@ static int getStr(char *str, size_t maxSize, const std::string& s)
 	return MSOC_NOERR;
 }
 
-MSOC_DLL_EXPORT int MSOC_getStr(char *str, size_t maxSize, const msoc_opt *opt, int optType)
+int MSOC_DLL_EXPORT MSOC_getStr(char *str, size_t maxSize, const msoc_opt *opt, int optType)
 {
 	switch (optType) {
 	case MSOC_OPT_TYPE_SECRET_KEY:
@@ -122,7 +122,7 @@ MSOC_DLL_EXPORT int MSOC_getStr(char *str, size_t maxSize, const msoc_opt *opt, 
 	}
 }
 
-MSOC_DLL_EXPORT int MSOC_setStr(msoc_opt *opt, int optType, const char *str)
+int MSOC_DLL_EXPORT MSOC_setStr(msoc_opt *opt, int optType, const char *str)
 	try
 {
 	switch (optType) {
@@ -196,7 +196,7 @@ static std::string convertChar2Wchar(const char *s)
 	return ret;
 }
 
-MSOC_DLL_EXPORT int MSOC_encryptA(const char *outFile, const char *inFile, const char *pass, const msoc_opt *opt)
+int MSOC_DLL_EXPORT MSOC_encryptA(const char *outFile, const char *inFile, const char *pass, const msoc_opt *opt)
 	try
 {
 	if (pass == NULL) return MSOC_ERR_PASS_IS_EMPTY;
@@ -208,7 +208,7 @@ MSOC_DLL_EXPORT int MSOC_encryptA(const char *outFile, const char *inFile, const
 }
 
 #ifdef _MSC_VER
-MSOC_DLL_EXPORT int MSOC_encrypt(const wchar_t *outFile, const wchar_t *inFile, const wchar_t *pass, const msoc_opt *opt)
+int MSOC_DLL_EXPORT MSOC_encrypt(const wchar_t *outFile, const wchar_t *inFile, const wchar_t *pass, const msoc_opt *opt)
 	try
 {
 	if (pass == NULL) return MSOC_ERR_PASS_IS_EMPTY;
@@ -251,7 +251,7 @@ int decrypt(const T *outFile, const T *inFile, const std::string& passData, msoc
 	return MSOC_NOERR;
 }
 
-MSOC_DLL_EXPORT int MSOC_decryptA(const char *outFile, const char *inFile, const char *pass, msoc_opt *opt)
+int MSOC_DLL_EXPORT MSOC_decryptA(const char *outFile, const char *inFile, const char *pass, msoc_opt *opt)
 	try
 {
 	std::string passData;
@@ -263,7 +263,7 @@ MSOC_DLL_EXPORT int MSOC_decryptA(const char *outFile, const char *inFile, const
 }
 
 #ifdef _MSC_VER
-MSOC_DLL_EXPORT int MSOC_decrypt(const wchar_t *outFile, const wchar_t *inFile, const wchar_t *pass, msoc_opt *opt)
+int MSOC_DLL_EXPORT MSOC_decrypt(const wchar_t *outFile, const wchar_t *inFile, const wchar_t *pass, msoc_opt *opt)
 	try
 {
 	std::string passData;

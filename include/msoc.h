@@ -11,7 +11,11 @@
 	#ifndef MSOC_DONT_AUTO_LINK
 		#pragma comment(lib, "msoc.lib")
 	#endif
-	#define MSOC_DLL_EXPORT __declspec(dllexport)
+	#ifdef _WIN64
+		#define MSOC_DLL_EXPORT
+	#else
+		#define MSOC_DLL_EXPORT __stdcall
+	#endif
 #else
 	#define MSOC_DLL_EXPORT
 #endif
@@ -34,7 +38,7 @@ extern "C" {
 #define MSOC_ERR_OUTFILE_IS_EMPTY (-11)
 #define MSOC_ERR_PASS_IS_EMPTY (-12)
 
-MSOC_DLL_EXPORT const char *MSOC_getErrMessage(int err);
+const char * MSOC_DLL_EXPORT MSOC_getErrMessage(int err);
 
 typedef struct msoc_opt msoc_opt;
 
@@ -47,7 +51,7 @@ typedef struct msoc_opt msoc_opt;
 	@param opt [inout] option (NULL is permitted)
 	use spinCount, secretKey of opt if set
 */
-MSOC_DLL_EXPORT int MSOC_encrypt(const wchar_t *outFile, const wchar_t *inFile, const wchar_t *pass, const msoc_opt *opt);
+int MSOC_DLL_EXPORT MSOC_encrypt(const wchar_t *outFile, const wchar_t *inFile, const wchar_t *pass, const msoc_opt *opt);
 /*
 	decrypt inFile and make outFile with pass(UTF-16 version)
 	@param outFile [in] plain MS Office file (NULL is permitted)
@@ -58,7 +62,7 @@ MSOC_DLL_EXPORT int MSOC_encrypt(const wchar_t *outFile, const wchar_t *inFile, 
 	secretKey of opt is used if pass is NULL
 	opt is set by the value of inFile if opt is not NULL
 */
-MSOC_DLL_EXPORT int MSOC_decrypt(const wchar_t *outFile, const wchar_t *inFile, const wchar_t *pass, msoc_opt *opt);
+int MSOC_DLL_EXPORT MSOC_decrypt(const wchar_t *outFile, const wchar_t *inFile, const wchar_t *pass, msoc_opt *opt);
 #endif
 /*
 	encrypt inFile and make outFile with pass(ASCII version : not UTF-8)
@@ -68,7 +72,7 @@ MSOC_DLL_EXPORT int MSOC_decrypt(const wchar_t *outFile, const wchar_t *inFile, 
 	@param opt [inout] option (NULL is permitted)
 	use spinCount, secretKey of opt if set
 */
-MSOC_DLL_EXPORT int MSOC_encryptA(const char *outFile, const char *inFile, const char *pass, const msoc_opt *opt);
+int MSOC_DLL_EXPORT MSOC_encryptA(const char *outFile, const char *inFile, const char *pass, const msoc_opt *opt);
 /*
 	decrypt inFile and make outFile with pass(ASCII version : not UTF-8)
 	@param outFile [in] plain MS Office file (NULL is permitted)
@@ -79,7 +83,7 @@ MSOC_DLL_EXPORT int MSOC_encryptA(const char *outFile, const char *inFile, const
 	secretKey of opt is used if pass is NULL
 	opt is set by the value of inFile if opt is not NULL
 */
-MSOC_DLL_EXPORT int MSOC_decryptA(const char *outFile, const char *inFile, const char *pass, msoc_opt *opt);
+int MSOC_DLL_EXPORT MSOC_decryptA(const char *outFile, const char *inFile, const char *pass, msoc_opt *opt);
 
 /*
 	optType of msoc_opt
@@ -94,31 +98,31 @@ MSOC_DLL_EXPORT int MSOC_decryptA(const char *outFile, const char *inFile, const
 	return pointer to msoc_opt
 	err if NULL
 */
-MSOC_DLL_EXPORT msoc_opt *MSOC_createOpt(void);
+msoc_opt * MSOC_DLL_EXPORT MSOC_createOpt(void);
 /*
 	destroy msoc_opt
 */
-MSOC_DLL_EXPORT void MSOC_destroyOpt(msoc_opt *msoc);
+void MSOC_DLL_EXPORT MSOC_destroyOpt(msoc_opt *msoc);
 
 /*
 	get int value of optType of opt);
 	@param value [out] return value
 */
-MSOC_DLL_EXPORT int MSOC_getInt(int *value, const msoc_opt *opt, int optType);
+int MSOC_DLL_EXPORT MSOC_getInt(int *value, const msoc_opt *opt, int optType);
 /*
 	set int value of optType of opt
 */
-MSOC_DLL_EXPORT int MSOC_setInt(msoc_opt *opt, int optType, int value);
+int MSOC_DLL_EXPORT MSOC_setInt(msoc_opt *opt, int optType, int value);
 /*
 	get string value of optType of opt
 	@param str [out] return value
 	@param maxSize [in] buffer size of str including '\0'
 */
-MSOC_DLL_EXPORT int MSOC_getStr(char *str, size_t maxSize, const msoc_opt *opt, int optType);
+int MSOC_DLL_EXPORT MSOC_getStr(char *str, size_t maxSize, const msoc_opt *opt, int optType);
 /*
 	set string value of optType of opt
 */
-MSOC_DLL_EXPORT int MSOC_setStr(msoc_opt *opt, int optType, const char *str);
+int MSOC_DLL_EXPORT MSOC_setStr(msoc_opt *opt, int optType, const char *str);
 
 #ifdef __cplusplus
 }

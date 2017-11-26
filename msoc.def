@@ -1,0 +1,13 @@
+LIBRARY msoc
+EXPORTS
+	MSOC_getErrMessage
+	MSOC_encrypt
+	MSOC_decrypt
+	MSOC_encryptA
+	MSOC_decryptA
+	MSOC_createOpt
+	MSOC_destroyOpt
+	MSOC_getInt
+	MSOC_setInt
+	MSOC_getStr
+	MSOC_setStr

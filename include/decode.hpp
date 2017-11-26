@@ -132,7 +132,7 @@ inline bool decodeAgile(std::string& decData, const std::string& encryptedPackag
 	// decode
 	normalizeKey(secretKey, encryptedKey.keyBits / 8);
 	DecContent(decData, encData, encryptedKey, secretKey, keyData.saltValue);
-	decData.resize(decodeSize);
+	decData.resize(size_t(decodeSize));
 	return true;
 }
 

@@ -25,7 +25,7 @@ void usage()
 */
 void wchar2ascii(char *s, size_t maxSize, const wchar_t *w)
 {
-	int i;
+	size_t i;
 	for (i = 0; i < maxSize; i++) {
 		wchar_t c = w[i];
 		s[i] = (char)c;
