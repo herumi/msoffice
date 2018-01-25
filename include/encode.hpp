@@ -87,7 +87,7 @@ inline void EncContent(std::string& encryptedPackage, const std::string& org, co
 
 	const size_t n = (data.size() + blockSize - 1) / blockSize;
 	for (size_t i = 0; i < n; i++) {
-		const size_t len = (i < n - 1) ? blockSize : (data.size() % blockSize);
+		const size_t len = (i < n - 1) ? blockSize : (data.size() - blockSize * i);
 		std::string blockKey(4, 0);
 		cybozu::Set32bitAsLE(&blockKey[0], static_cast<uint32_t>(i));
 		const std::string iv = generateKey(param, salt, blockKey);
