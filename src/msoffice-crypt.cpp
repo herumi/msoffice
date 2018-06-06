@@ -91,12 +91,14 @@ int main(int argc, char *argv[])
 	bool debug2 = false;
 	bool debug3 = false;
 	bool putSecretKey = false;
+	bool excelProtect = false;
 
 	cybozu::Option opt;
 	opt.appendOpt(&pstr, "", "p", "password in only ascii");
 	opt.appendOpt(&encMode, 0, "encMode", "0:use AES128(default), 1: use AES256 for encoding");
 	opt.appendOpt(&ph8str, "", "ph8", "password in utf8 hex. ex. 68656C6C6F for 'hello'");
 	opt.appendOpt(&ph16str, "", "ph16", "password in utf16 hex. ex. u3042u3044u3046 for 'aiu' in hiragana");
+	opt.appendBoolOpt(&excelProtect, "pep", "password for Excel protection (VelvetSweatshop)");
 	opt.appendOpt(&secretKeyHex, "", "k", "(experimental) secret key in hex. ex. 0123456789ABCDEF0123456789ABCDEF");
 	opt.appendOpt(&keyFile, "", "by", "(experimental) extract secret key from this file");
 	opt.appendBoolOpt(&doEncode, "e", "encode");
@@ -117,6 +119,9 @@ int main(int argc, char *argv[])
 	ms::setDebug(debug3 ? 3 : debug2 ? 2 : putEncryptionInfo ? 1 : 0);
 	if (!pstr.empty()) {
 		wpass = cybozu::ToUtf16(pstr);
+	}
+	if (excelProtect) {
+		wpass = cybozu::ToUtf16("VelvetSweatshop");
 	}
 	if (putSecretKey) {
 		ms::putSecretKeyInstance() = true;
