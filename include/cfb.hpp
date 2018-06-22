@@ -690,7 +690,7 @@ struct DirectoryEntryVec : std::vector<DirectoryEntry> {
 					const uint32_t pos = dir.startingSectorLocation;
 
 					const UintVec *v;
-					if (dir.streamSize <= cutoffSize && (v = miniFats.query(pos)) != 0) {
+					if (dir.streamSize < cutoffSize && (v = miniFats.query(pos)) != 0) {
 						load(dir.content, &miniData[0], dir.streamSize, *v, miniSectorSize);
 					} else {
 						load(dir.content, data, dir.streamSize, fats.get(pos), sectorSize);
