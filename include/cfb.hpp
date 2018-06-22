@@ -744,9 +744,6 @@ struct CompoundFile {
 		if (header.firstDirectorySectorLocation >= dataSize / sectorSize) {
 			throw cybozu::Exception("ms:cfb:CompoundFile:analyze:large size") << header.firstDirectorySectorLocation;
 		}
-		if (header.firstDirectorySectorLocation >= dataSize / sectorSize) {
-			throw cybozu::Exception("ms:cfb:CompoundFile:analyze:bad firstDirectorySectorLocation") << header.firstDifatSectorLocation;
-		}
 		fats.analyze(data + 512, sectorSize, header.difat);
 		if (header.numMiniFatSectors > 0) {
 			dprintf("# of mini fat sectors = %d\n", header.numMiniFatSectors);
