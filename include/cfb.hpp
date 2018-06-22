@@ -685,6 +685,11 @@ struct DirectoryEntryVec : std::vector<DirectoryEntry> {
 				break;
 			case StreamObject: // file
 				{
+					/*
+						https://msdn.microsoft.com/en-us/library/dd941946.aspx
+						Any user-defined data stream that is greater than or equal to this cutoff
+						size must be allocated as normal sectors from the FAT.
+					*/
 					const uint64_t cutoffSize = 4096;
 					const uint64_t miniSectorSize = 64;
 					const uint32_t pos = dir.startingSectorLocation;
