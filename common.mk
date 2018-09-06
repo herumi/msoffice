@@ -8,6 +8,7 @@ CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -W
 CFLAGS = -g -D_FILE_OFFSET_BITS=64 -msse2 -fno-operator-names
 CFLAGS+=$(CFLAGS_WARN)
 LDFLAGS = -lcrypto -lssl
+UNAME := $(shell uname)
 
 DEBUG=0
 ifeq ($(RELEASE),1)
@@ -25,7 +26,13 @@ endif
 
 TOPDIR:=$(realpath $(dir $(lastword $(MAKEFILE_LIST))))/
 CFLAGS+= -I$(TOPDIR)include -I$(TOPDIR)../cybozulib/include -I$(TOPDIR)../mie/include
-LDFLAGS+= -L$(TOPDIR)lib -lcrypto -lpthread -lrt
+LDFLAGS+= -L$(TOPDIR)lib -lcrypto -lpthread
+
+ifeq ($(UNAME), Darwin)
+	LDFLAGS+= -DNORT
+else
+	LDFLAGS+= -lrt
+endif
 
 MKDEP = sh -ec '$(CC) -MM $(CFLAGS) $< | sed "s@\($*\)\.o[ :]*@$(OBJDIR)/\1.o $@ : @g" > $@; [ -s $@ ] || rm -f $@'
 
