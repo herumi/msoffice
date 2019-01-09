@@ -12,6 +12,9 @@ UNAME_S=$(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
   CFLAGS+=-I/usr/local/opt/openssl/include
   LDFLAGS+=-L/usr/local/opt/openssl/lib
+  DLL_SUFFIX=dylib
+else
+  DLL_SUFFIX=so
 endif
 
 DEBUG=0
