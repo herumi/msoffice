@@ -685,12 +685,17 @@ struct DirectoryEntryVec : std::vector<DirectoryEntry> {
 				break;
 			case StreamObject: // file
 				{
+					/*
+						https://msdn.microsoft.com/en-us/library/dd941946.aspx
+						Any user-defined data stream that is greater than or equal to this cutoff
+						size must be allocated as normal sectors from the FAT.
+					*/
 					const uint64_t cutoffSize = 4096;
 					const uint64_t miniSectorSize = 64;
 					const uint32_t pos = dir.startingSectorLocation;
 
 					const UintVec *v;
-					if (dir.streamSize <= cutoffSize && (v = miniFats.query(pos)) != 0) {
+					if (dir.streamSize < cutoffSize && (v = miniFats.query(pos)) != 0) {
 						load(dir.content, &miniData[0], dir.streamSize, *v, miniSectorSize);
 					} else {
 						load(dir.content, data, dir.streamSize, fats.get(pos), sectorSize);
@@ -738,9 +743,6 @@ struct CompoundFile {
 		dprintf("sectorSize=%u\n", sectorSize);
 		if (header.firstDirectorySectorLocation >= dataSize / sectorSize) {
 			throw cybozu::Exception("ms:cfb:CompoundFile:analyze:large size") << header.firstDirectorySectorLocation;
-		}
-		if (header.firstDirectorySectorLocation >= dataSize / sectorSize) {
-			throw cybozu::Exception("ms:cfb:CompoundFile:analyze:bad firstDirectorySectorLocation") << header.firstDifatSectorLocation;
 		}
 		fats.analyze(data + 512, sectorSize, header.difat);
 		if (header.numMiniFatSectors > 0) {

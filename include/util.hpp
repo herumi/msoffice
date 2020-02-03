@@ -43,7 +43,14 @@ inline void dprintf(const char *format, ...)
 	if (!isDebug()) return;
 	va_list args;
 	va_start(args, format);
+#ifdef __GNUC__
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
 	vprintf(format, args);
+#ifdef __GNUC__
+	#pragma GCC diagnostic pop
+#endif
 	va_end(args);
 }
 
