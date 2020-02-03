@@ -92,6 +92,7 @@ int main(int argc, char *argv[])
 	bool debug3 = false;
 	bool putSecretKey = false;
 	bool excelProtect = false;
+	bool forceProcessing = false;
 
 	cybozu::Option opt;
 	opt.appendOpt(&pstr, "", "p", "password in only ascii");
@@ -103,6 +104,7 @@ int main(int argc, char *argv[])
 	opt.appendOpt(&keyFile, "", "by", "(experimental) extract secret key from this file");
 	opt.appendBoolOpt(&doEncode, "e", "encode");
 	opt.appendBoolOpt(&doDecode, "d", "decode");
+	opt.appendBoolOpt(&forceProcessing, "force", "force processing regardless of detected file type");
 	opt.appendOpt(&spinCount, 100000, "c", "spin count");
 	opt.appendBoolOpt(&putSecretKey, "psk", "print secret key");
 	opt.appendBoolOpt(&putEncryptionInfo, "info", "print EncryptionInfo info");
@@ -178,18 +180,27 @@ int main(int argc, char *argv[])
 		throw cybozu::Exception("ms:encode:m.size") << m.size();
 	}
 	const uint32_t dataSize = static_cast<uint32_t>(m.size());
-	const ms::Format format = ms::DetectFormat(data, dataSize);
-
+	ms::Format format;
+	try {
+		format = ms::DetectFormat(data, dataSize);
+	}
+	catch (std::exception& e) {
+		format = ms::fUnknown;
+		if (!forceProcessing) {
+			printf("unknown format\n");
+			return 1;
+		}
+	}
 
 	if (doEncode) {
-		if (format == ms::fCfb) {
+		if (!forceProcessing && format == ms::fCfb) {
 			printf("already encrypted\n");
 			return 2;
 		}
 		bool isOffice2013 = encMode == 1;
 		ms::encode(data, dataSize, outFile, passData, isOffice2013, secretKey, spinCount);
 	} else {
-		if (format == ms::fZip) {
+		if (!forceProcessing && format == ms::fZip) {
 			printf("already decrypted\n");
 			return 2;
 		}

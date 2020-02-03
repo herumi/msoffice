@@ -16,7 +16,8 @@ namespace ms {
 
 enum Format {
 	fZip, // not encrypted(maybe)
-	fCfb // encrypted(maybe)
+	fCfb, // encrypted(maybe)
+	fUnknown
 };
 
 inline int& debugInstance()
