@@ -183,11 +183,10 @@ int main(int argc, char *argv[])
 	ms::Format format;
 	try {
 		format = ms::DetectFormat(data, dataSize);
-	}
-	catch (std::exception& e) {
+	} catch (std::exception& e) {
 		format = ms::fUnknown;
 		if (!forceProcessing) {
-			printf("unknown format\n");
+			printf("unknown format %s\n", e.what());
 			return 1;
 		}
 	}
