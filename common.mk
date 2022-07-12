@@ -7,7 +7,7 @@ CFLAGS_OPT = -Ofast -fomit-frame-pointer -DNDEBUG -march=native -msse4
 CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith #-Wswitch-enum -Wstrict-aliasing=2
 CFLAGS = -g -D_FILE_OFFSET_BITS=64 -msse2 -fno-operator-names
 CFLAGS+=$(CFLAGS_WARN)
-LDFLAGS = -lcrypto -lssl
+LDFLAGS = -lcrypto
 UNAME_S=$(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
   CFLAGS+=-I/usr/local/opt/openssl/include
