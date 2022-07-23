@@ -10,7 +10,7 @@ NOTES:
 
     ```
     cd [top-level-folder]
-    git clone https://github.com/leenjewel/openssl_for_ios_and_android.git
+    git clone https://github.com/andybrucenet/openssl_for_ios_and_android.git
     cd openssl_for_ios_and_android
     ```
 1. Set a few helper variables used below:
@@ -34,20 +34,6 @@ NOTES:
     ./build-android-openssl.sh
     cd ..
     ```
-1. The build will take less than an hour; after it finishes you can populate the openssl library folders; these are found under the `./output` folder. Files should be copied to the TripleCyber OneDrive location as shown below.
-   *Remember that the following commands should be run from the `openssl_for_ios_and_android` folder after a successful build.*
-
-    ```
-    the_onedrive_dir="$(find "$HOME" -name 'OneDrive*' -type d -maxdepth 1 | sort -r | head -n 1)"
-    for i in arm64-v8a armeabi-v7a x86 x86_64 ; do
-      mkdir -p "$the_onedrive_dir/TripleChain/OutsideSoftwarePackages/openssl/android/$i"
-      for j in ./output/android/openssl-$i/lib/lib*.so.* ; do
-        so_name=$(basename "$j" | sed -e 's/^lib\(.*\.so\)\..*$/libtc3\2/')
-        echo cp $j "$the_onedrive_dir/TripleChain/OutsideSoftwarePackages/openssl/android/$i/$so_name"
-        cp $j "$the_onedrive_dir/TripleChain/OutsideSoftwarePackages/openssl/android/$i/$so_name"
-      done
-    done
-    ```
-1. The files will be automatically synchronized from the TripleCyber OneDrive location to your pulled TripleCyber source code; simply use the `make prereqs` command at the TripleCyber top-level source folder.
+1. The build will take less than an hour.
 
 That is all.
