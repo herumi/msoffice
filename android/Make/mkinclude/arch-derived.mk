@@ -19,9 +19,8 @@ the_build_platform:=android
 the_cc_platform_defines:=-DANDROID -D__ANDROID_API__=$(ANDROID_API) 
 
 # includes for msoc
-TC3_INCLUDES:=-I$(TC3_OPENSSL_DIR)/$(the_build_platform)/$(ARCH)/include -I$(TC3_MSOC_DIR)/src/msoffice/include -I$(TC3_MSOC_DIR)/src/cybozulib/include 
-#TC3_LIBS:=-L$(TC3_OPENSSL_DIR)/$(the_build_platform)/$(ARCH) -lcrypto -lssl
-TC3_LIBS:=-L$(TC3_OPENSSL_DIR)/$(the_build_platform)/$(ARCH) -lcrypto
+INCLUDES:=-I$(OPENSSL_DIR)/$(ARCH)/include -I$(MSOC_DIR)/include -I$(TOP_DIR)/cybozulib/include -I$(SIMDE_DIR)
+LIBS:=-L$(OPENSSL_DIR)/$(ARCH) -lcrypto
 
 # analyze the architecture
 ifeq ($(ARCH),armeabi-v7a)
@@ -78,14 +77,13 @@ STRIP:=$(the_tool_prefix)-$(the_os_type)-$(the_build_platform)$(the_arch_suffix)
 TOOLCHAIN_SHARED_LIBS_DIR:=$(XAMARIN_ANDROID_NDK_SYSROOT_DIR)/usr/lib/$(the_tool_prefix)-$(the_os_type)-$(the_build_platform)$(the_arch_suffix)
 TOOLCHAIN_SHARED_LIB_CXX_NAME:=libc++_shared.so
 TOOLCHAIN_SHARED_LIB_CXX=$(TOOLCHAIN_SHARED_LIBS_DIR)/$(TOOLCHAIN_SHARED_LIB_CXX_NAME)
-SHARED_LIB_TC3CRYPTO_NAME=
 
 # flags
 ARFLAGS:=rs
-CFLAGS:=-march=$(the_cc_arch) $(the_cc_opts_extra) -Wno-unused-function -fno-integrated-as -fstrict-aliasing -fPIC $(the_cc_platform_defines) -Os -ffunction-sections -fdata-sections -I$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include -I$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/local/include $(TC3_INCLUDES)
-CPPFLAGS:=-march=$(the_cc_arch) $(the_cc_opts_extra) -Wno-unused-function -fno-integrated-as -fstrict-aliasing -fPIC $(the_cc_platform_defines) -Os -ffunction-sections -fdata-sections -I$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include -I$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/local/include $(TC3_INCLUDES)
+CFLAGS:=-march=$(the_cc_arch) $(the_cc_opts_extra) -Wno-unused-function -fno-integrated-as -fstrict-aliasing -fPIC $(the_cc_platform_defines) -Os -ffunction-sections -fdata-sections -I$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include -I$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/local/include $(INCLUDES)
+CPPFLAGS:=-march=$(the_cc_arch) $(the_cc_opts_extra) -Wno-unused-function -fno-integrated-as -fstrict-aliasing -fPIC $(the_cc_platform_defines) -Os -ffunction-sections -fdata-sections -I$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include -I$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/local/include $(INCLUDES)
 CXXFLAGS:=-std=c++14 -Os -ffunction-sections -fdata-sections
-LDFLAGS:=-march=$(the_cc_arch) $(the_ld_opts_extra) -Wl,--gc-sections -Os -ffunction-sections -fdata-sections -L$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/$(the_tool_prefix)-$(the_os_type)-$(the_build_platform)$(the_arch_suffix)/lib -L$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/$(the_tool_prefix)-$(the_os_type)-$(the_build_platform)$(the_arch_suffix)/$(ANDROID_API) -L$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/lib $(TC3_LIBS) -latomic -lc++ -Wl,-znodelete -shared -Wl,-Bsymbolic
+LDFLAGS:=-march=$(the_cc_arch) $(the_ld_opts_extra) -Wl,--gc-sections -Os -ffunction-sections -fdata-sections -L$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/$(the_tool_prefix)-$(the_os_type)-$(the_build_platform)$(the_arch_suffix)/lib -L$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/$(the_tool_prefix)-$(the_os_type)-$(the_build_platform)$(the_arch_suffix)/$(ANDROID_API) -L$(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/darwin-x86_64/lib $(LIBS) -latomic -lc++ -Wl,-znodelete -shared -Wl,-Bsymbolic
 #-static-libstdc++
 #-Wno-unused-command-line-argument
 

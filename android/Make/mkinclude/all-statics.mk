@@ -5,12 +5,13 @@
 # overall build output
 PRJ_DIR:=$(realpath .)
 BUILD_DIR:=$(PRJ_DIR)/build_dir
-TC3_EXTERNAL_DIR:=$(realpath ../../../..)
-TC3_OPENSSL_DIR:=$(TC3_EXTERNAL_DIR)/openssl
-TC3_MSOC_DIR:=$(TC3_EXTERNAL_DIR)/msoc
+TOP_DIR:=$(realpath ../../..)
+SIMDE_DIR:=$(TOP_DIR)/simde
+MSOC_DIR:=$(TOP_DIR)/msoffice
+OPENSSL_DIR:=$(MSOC_DIR)/android/openssl
 
 # all other locations are relative to MSOC_DIR
-SRC_DIR:=$(TC3_MSOC_DIR)/src/msoffice/src
+SRC_DIR:=$(MSOC_DIR)/src
 
 # set API level here
 export ANDROID_API:=29

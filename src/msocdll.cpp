@@ -4,15 +4,23 @@
 	@author herumi
 	Copyright (C) 2016 Cybozu Labs, Inc., all rights reserved.
 */
+
 #ifdef _MSC_VER
 	#pragma warning(disable : 4456)
 	#pragma warning(disable : 4458)
 #endif
 
+// ABr: do not support 32-bit ARM :(
+#if defined(__arm__)
+#define UINT32VEC_UNSUPPORTED
+#endif
+
 #define MSOC_DONT_AUTO_LINK
 #include "cfb.hpp"
+#if !defined(UINT32VEC_UNSUPPORTED)
 #include "decode.hpp"
 #include "encode.hpp"
+#endif
 #include "make_dataspace.hpp"
 #include "msoc.h"
 
@@ -26,6 +34,13 @@ static void setException(const std::exception& e)
 	if (len >= maxExceptionSize) len = maxExceptionSize;
 	memcpy(g_exception, e.what(), len);
 	g_exception[len] = '\0';
+}
+
+// ABr: function to permit exception from string literal
+static void setException(const char *e)
+{
+    /// QQQ: not multi-thread
+    strcpy(g_exception, e);
 }
 
 const char * MSOC_DLL_EXPORT MSOC_getErrMessage(int err)
@@ -139,6 +154,10 @@ int MSOC_DLL_EXPORT MSOC_setStr(msoc_opt *opt, int optType, const char *str)
 template<class T>
 static int readFile(std::string& data, ms::Format& format, uint32_t& dataSize, const T *inFile)
 {
+#if defined(UINT32VEC_UNSUPPORTED)
+    setException("readFile: unsupported platform");
+    return MSOC_ERR_EXCEPTION;
+#else
 	cybozu::Mmap m(inFile);
 	if (m.size() > 0xffffffff) {
 		return MSOC_ERR_TOO_LARGE_FILE;
@@ -147,6 +166,7 @@ static int readFile(std::string& data, ms::Format& format, uint32_t& dataSize, c
 	data.assign(m.get(), dataSize);
 	format = ms::DetectFormat(data.data(), dataSize);
 	return MSOC_NOERR;
+#endif
 }
 
 /*
@@ -162,6 +182,10 @@ static int readFile(std::string& data, ms::Format& format, uint32_t& dataSize, c
 template<class T>
 int encrypt(const T *outFile, const T *inFile, const std::string& passData, const msoc_opt *opt)
 {
+#if defined(UINT32VEC_UNSUPPORTED)
+    setException("encrypt: unsupported platform");
+    return MSOC_ERR_EXCEPTION;
+#else
 	if (outFile == NULL) return MSOC_ERR_OUTFILE_IS_EMPTY;
 	if (inFile == NULL) return MSOC_ERR_INFILE_IS_EMPTY;
 	const bool isOffice2013 = true;
@@ -182,6 +206,7 @@ int encrypt(const T *outFile, const T *inFile, const std::string& passData, cons
 	std::basic_string<T> outFileW = outFile;
 	ms::encode(data.data(), dataSize, outFileW, passData, isOffice2013, secretKey, spinCount);
 	return MSOC_NOERR;
+#endif
 }
 
 static std::string convertChar2Wchar(const char *s)
@@ -216,13 +241,17 @@ int MSOC_DLL_EXPORT MSOC_encrypt(const wchar_t *outFile, const wchar_t *inFile, 
 	return encrypt(outFile, inFile, passData, opt);
 } catch (std::exception& e) {
 	setException(e);
-	return MSOC_ERR_EXCEPTION;
+    return MSOC_ERR_EXCEPTION;
 }
 #endif
 
 template<class T>
 int decrypt(const T *outFile, const T *inFile, const std::string& passData, msoc_opt *opt)
 {
+#if defined(UINT32VEC_UNSUPPORTED)
+    setException("decrypt: unsupported platform");
+    return MSOC_ERR_EXCEPTION;
+#else
 	if (inFile == NULL) return MSOC_ERR_INFILE_IS_EMPTY;
 	const bool doView = outFile == NULL;
 	std::string data;
@@ -249,6 +278,7 @@ int decrypt(const T *outFile, const T *inFile, const std::string& passData, msoc
 		opt->secretKey = ms::hex(secretKey);
 	}
 	return MSOC_NOERR;
+#endif
 }
 
 int MSOC_DLL_EXPORT MSOC_decryptA(const char *outFile, const char *inFile, const char *pass, msoc_opt *opt)
@@ -259,7 +289,7 @@ int MSOC_DLL_EXPORT MSOC_decryptA(const char *outFile, const char *inFile, const
 	return decrypt(outFile, inFile, passData, opt);
 } catch (std::exception& e) {
 	setException(e);
-	return MSOC_ERR_EXCEPTION;
+    return MSOC_ERR_EXCEPTION;
 }
 
 #ifdef _MSC_VER

@@ -25,24 +25,21 @@ endif
 
 # determine how to locate openssl library as it is not provided for ios
 ifeq ($(SDK),iphoneos)
-TC3_LIBRARY_SDKNAME:=iPhone
+LIBRARY_SDKNAME:=iPhone
 CFLAG_IOS_MIN_VERSION:=-mios-version-min=$(THE_IOS_MINIMUM_VERSION)
 endif
 ifeq ($(SDK),iphonesimulator)
-TC3_LIBRARY_SDKNAME:=iPhoneSimulator
+LIBRARY_SDKNAME:=iPhoneSimulator
 CFLAG_IOS_MIN_VERSION:=-mios-simulator-version-min=$(THE_IOS_MINIMUM_VERSION)
 endif
-ifeq ($(SDK),macosx)
-TC3_LIBRARY_SDKNAME:=macOS
-endif
-ifneq ($(TC3_LIBRARY_SDKNAME),)
-LDFLAGS:=-lc++ -L$(MSOC_DIR)/../openssl/apple/$(TC3_LIBRARY_SDKNAME) -lcrypto -lssl
+ifneq ($(LIBRARY_SDKNAME),)
+LDFLAGS:=-lc++ -L$(OPENSSL_DIR)/$(LIBRARY_SDKNAME) -lcrypto
 endif
 
 # compiler and flags
 CC:=$(shell xcrun --sdk $(SDK) --find clang)
 SYSROOT:=$(shell xcrun --sdk $(SDK) --show-sdk-path)
-CFLAGS:=$(GLOBAL_CFLAGS) -isysroot $(SYSROOT) -arch $(ARCH) -fobjc-arc -Werror -D tc3_$(ARCH) $(CFLAG_IOS_MIN_VERSION)
+CFLAGS:=$(GLOBAL_CFLAGS) -isysroot $(SYSROOT) -arch $(ARCH) -fobjc-arc -Werror -D sdk_$(ARCH) $(CFLAG_IOS_MIN_VERSION)
 LIBTOOLFLAGS:=-arch_only $(ARCH)
 DYLIBTOOLFLAGS:=-dynamiclib -install_name lib$(LIBNAME).dylib -L$(SDK_XCODE_PLATFORM_SDK_PATH)/usr/lib -F$(SDK_XCODE_PLATFORM_SDK_PATH)/System/Library/Frameworks -framework CoreFoundation -framework Foundation -framework Security
 
