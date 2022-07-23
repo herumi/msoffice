@@ -1,0 +1,45 @@
+########################################################################
+# Makefile.arch, ABr
+# Architecture-specific Makefile
+
+# variables
+include ./mkinclude/all-statics.mk
+include ./mkinclude/sdk-derived.mk
+include ./mkinclude/arch-derived.mk
+
+########################################################################
+# meta-targets
+.PHONY: build lib objs dirs
+
+build: lib
+
+lib: dirs objs $(ARCH_DYLIB_PATH) $(ARCH_LIB_PATH)
+
+objs: $(ARCH_OBJS)
+
+dirs: $(ARCH_OBJ_DIR) $(ARCH_LIB_DIR)
+
+########################################################################
+# actual targets
+
+# dylib module
+ifneq ($(ARCH_DYLIB_PATH),)
+$(ARCH_DYLIB_PATH): $(ARCH_OBJS)
+	$(CC) $(LDFLAGS) $(DYLIBTOOLFLAGS) -o $@ $(ARCH_OBJS)
+endif
+
+# static library
+$(ARCH_LIB_PATH): $(ARCH_OBJS)
+	libtool $(LIBTOOLFLAGS) -o $@ $(ARCH_OBJS)
+
+# individual objects
+$(ARCH_OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@# command line with macros expanded and listed
+	@echo $(CC) -dM -E -x c $(CFLAGS) -c $<
+	@# command line with macros expanded
+	@echo $(CC) -E -dD $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# directories
+$(ARCH_OBJ_DIR) $(ARCH_LIB_DIR):
+	@mkdir -p $@

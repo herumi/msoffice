@@ -1,0 +1,7 @@
+# .gitignore
+
+# mac files
+.DS_Store
+
+# ignore build files
+build_dir

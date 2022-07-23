@@ -1,0 +1,76 @@
+########################################################################
+# Makefile.sdk, ABr
+# Main build driver for universal library.
+# Individual architectures are created using a specific Makefile to
+# enable architecture-specific objective-c code compilation.
+
+########################################################################
+# library identity
+LIBNAME?=msoc
+#
+# xcodebuild -showsdks
+#   iphoneos / iphonesimulator / macosx
+SDK?=iphoneos
+
+include ./mkinclude/all-statics.mk
+include ./mkinclude/sdk-derived.mk
+
+########################################################################
+# meta-targets
+.PHONY: all dirs build clean rebuild kick archs lib clean_lib
+
+all: build
+
+build: lib
+
+clean:
+	rm -fR "$(SDK_BUILD_DIR)"
+
+rebuild: clean build
+
+kick: clean_lib build
+
+lib: dirs $(UNIVERSAL_LIB_PATH) $(UNIVERSAL_DYLIB_PATH)
+
+clean_lib:
+	rm -f $(SDK_ARCH_LIBS) "$(UNIVERSAL_LIB_PATH)" "$(UNIVERSAL_DYLIB_PATH)"
+
+dirs: $(UNIVERSAL_LIB_DIR)
+
+########################################################################
+# physical targets
+
+# universal dylib library - this is not "universal" at all :)
+$(UNIVERSAL_DYLIB_PATH): $(SDK_ARCH_LIBS)
+	find "$(SDK_BUILD_DIR)" -type f -path "$(UNIVERSAL_LIB_DIR)" -prune -o -name '*.dylib' -exec cp {} "$(UNIVERSAL_LIB_DIR)"/ \;
+
+# universal static library
+$(UNIVERSAL_LIB_PATH): $(SDK_ARCH_LIBS)
+	lipo -create $(SDK_ARCH_LIBS) -output $(UNIVERSAL_LIB_PATH)
+
+$(SDK_ARCH_LIBS):
+	@ for i in $@ ; do \
+      LIBNAME="$(LIBNAME)" ; \
+      SDK="$(SDK)" ; \
+      ARCH="`echo \"$$i\" | sed -e \"s#^$(SDK_BUILD_DIR)/\([^/]*\)/.*#\\1#\"`" ; \
+      export LIBNAME SDK ARCH ; \
+      echo "***make $(SDK)-$$i" ; \
+      $(MAKE) --no-print-directory -f ./mkinclude/Makefile.arch build ; \
+      rc=$$? ; [ $$rc -ne 0 ] && exit $$rc ; \
+      echo ; \
+    done
+
+$(UNIVERSAL_LIB_DIR):
+	mkdir -p $@
+
+archs:
+	@ for i in $(ARCHS_$(SDK)) ; do \
+      LIBNAME="$(LIBNAME)" ; \
+      SDK="$(SDK)" ; \
+      ARCH="$$i" ; \
+      export LIBNAME SDK ARCH ; \
+      echo "***make $(SDK)-$$i" ; \
+      $(MAKE) --no-print-directory -f ./mkinclude/Makefile.arch build ; \
+      rc=$$? ; [ $$rc -ne 0 ] && exit $$rc ; \
+      echo ; \
+    done

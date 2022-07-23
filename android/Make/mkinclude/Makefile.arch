@@ -1,0 +1,64 @@
+########################################################################
+# Makefile.arch, ABr
+# Architecture-specific Makefile
+
+# variables
+include ./mkinclude/all-statics.mk
+include ./mkinclude/arch-derived.mk
+
+########################################################################
+# meta-targets
+.PHONY: build clean clean_lib dirs kick lib objs rebuild
+
+all: build
+
+build: lib
+
+rebuild: clean build
+
+clean:
+	rm -fR "$(ARCH_BUILD_DIR)"
+
+clean_lib:
+	rm -f "$(ARCH_LIB_PATH)" "$(ARCH_SO_PATH)" "$(UNIVERSAL_LIB_PATH)" "$(UNIVERSAL_DYLIB_PATH)"
+
+kick: clean_lib build
+
+lib: dirs objs $(ARCH_SO_PATH) $(ARCH_LIB_PATH)
+
+objs: $(ARCH_OBJS)
+
+dirs: $(ARCH_OBJ_DIR) $(ARCH_LIB_DIR)
+
+########################################################################
+# actual targets
+
+# c++ shared library *required* for runtime load :(
+$(ARCH_LIB_DIR)/$(TOOLCHAIN_SHARED_LIB_CXX_NAME):
+	cp $(TOOLCHAIN_SHARED_LIB_CXX) $(ARCH_LIB_DIR)/$(TOOLCHAIN_SHARED_LIB_CXX_NAME)
+
+# shared object
+$(ARCH_SO_PATH): $(ARCH_LIB_DIR)/$(TOOLCHAIN_SHARED_LIB_CXX_NAME) $(ARCH_OBJS)
+	@#cd $(ARCH_LIB_DIR) && $(CC) $(LDFLAGS) -Wl,-soname=lib$(LIBNAME).so -o $@ -Wl,--version-script=lib$(LIBNAME).map $(ARCH_OBJS)
+	@#which $(CC)
+	cd $(ARCH_LIB_DIR) && $(CXX) $(LDFLAGS) -Wl,-soname=lib$(LIBNAME).so -o "$@" $(ARCH_OBJS)
+	@echo 'Needed Shared Objects at runtime:'
+	which $(the_tool_prefix)-$(the_os_type)-$(the_build_platform)$(the_arch_suffix)-objdump
+	@$(the_tool_prefix)-$(the_os_type)-$(the_build_platform)$(the_arch_suffix)-objdump -x "$@" | grep NEEDED
+
+# static library
+$(ARCH_LIB_PATH): $(ARCH_OBJS)
+	$(AR) $(ARFLAGS) "$@" $?
+	$(RANLIB) "$@" || echo Never mind.
+
+# individual objects
+$(ARCH_OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@# command line with macros expanded and listed
+	@#$(CC) -dM -E -x c $(CPPFLAGS) -c $<
+	@# command line with macros expanded
+	@#echo $(CC) -E -dD $(CFLAGS) -c $<
+	$(CXX) $(CFLAGS) $(CXXFLAGS) -c "$<" -o "$@"
+
+# directories
+$(ARCH_OBJ_DIR) $(ARCH_LIB_DIR):
+	mkdir -p "$@"
