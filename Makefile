@@ -9,7 +9,7 @@ all:
 	$(MAKE) $(MSOC_SLIB)
 
 test:
-	python test_all.py
+	python3 test_all.py
 clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C test clean
