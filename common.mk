@@ -32,7 +32,7 @@ else
 endif
 
 TOPDIR:=$(realpath $(dir $(lastword $(MAKEFILE_LIST))))/
-CFLAGS+= -I$(TOPDIR)include -I$(TOPDIR)../cybozulib/include -I$(TOPDIR)../mie/include
+CFLAGS+= -I$(TOPDIR)include -I$(TOPDIR)../cybozulib/include
 LDFLAGS+= -L$(TOPDIR)lib -lcrypto -lpthread
 ifneq ($(UNAME_S),Darwin)
   LDFLAGS+=-lrt
