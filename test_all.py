@@ -11,7 +11,7 @@ except:
 
 def verify(name):
 	[base,suf] = name.split('.')
-	print base, suf
+	print(base, suf)
 	enc1 = INP + '/' + base + '.' + suf
 	dec1 = OUT + '/' + base + '.' + suf
 	enc2 = OUT + '/' + base + '_e.' + suf
@@ -23,9 +23,9 @@ def verify(name):
 	subprocess.check_call([EXE, "-d", "-p", ps2, enc2, dec2])
 	data1 = open(dec1, 'rb').read()
 	data2 = open(dec2, 'rb').read()
-	print "size", len(data1)
+	print("size", len(data1))
 	if data1 != data2:
-		print "bad decode:not equal", dec1, dec2
+		print("bad decode:not equal", dec1, dec2)
 		exit(1)
 
 def main():
@@ -39,7 +39,7 @@ def main():
 		for file in files:
 			verify(file)
 	except Exception as e:
-		print e
+		print(e)
 		exit(1)
 
 if __name__ == '__main__':
