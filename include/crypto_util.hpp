@@ -9,7 +9,12 @@
 #include <cybozu/string.hpp>
 #include <cybozu/minixml.hpp>
 #include <cybozu/endian.hpp>
+#if CYBOZU_HOST == CYBOZU_HOST_INTEL
+	#define USE_CUSTOM_SHA1
+#endif
+#ifdef USE_CUSTOM_SHA1
 #include "custom_sha1.hpp"
+#endif
 //#define DEBUG_CLK
 
 #ifdef DEBUG_CLK
@@ -45,7 +50,6 @@ struct XXX {
 } xxx;
 #endif
 
-// #define USE_CUSTOM_SHA1
 
 inline std::string hashPassword(cybozu::crypto::Hash::Name name, const std::string& salt, const std::string& pass, int spinCount)
 {
