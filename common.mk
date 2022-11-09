@@ -2,16 +2,17 @@ CP = cp -f
 AR = ar r
 MKDIR=mkdir -p
 RM=rm -fr
-CFLAGS_OPT = -Ofast -fomit-frame-pointer -DNDEBUG -march=native -msse4
+CFLAGS_OPT = -O2 -DNDEBUG
 #CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith #-Wswitch-enum -Wstrict-aliasing=2
 CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith #-Wswitch-enum -Wstrict-aliasing=2
-CFLAGS = -g -D_FILE_OFFSET_BITS=64 -msse2 -fno-operator-names
+CFLAGS = -g -D_FILE_OFFSET_BITS=64
 CFLAGS+=$(CFLAGS_WARN)
 LDFLAGS = -lcrypto
 UNAME_S=$(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
-  CFLAGS+=-I/usr/local/opt/openssl/include
-  LDFLAGS+=-L/usr/local/opt/openssl/lib
+  EXT_DIR?=/opt/homebrew/
+  CFLAGS+=-I$(EXT_DIR)/include
+  LDFLAGS+=-L$(EXT_DIR)/lib
   LIB_SUF=dylib
 else
   LIB_SUF=so
@@ -32,7 +33,7 @@ else
 endif
 
 TOPDIR:=$(realpath $(dir $(lastword $(MAKEFILE_LIST))))/
-CFLAGS+= -I$(TOPDIR)include -I$(TOPDIR)../cybozulib/include -I$(TOPDIR)../mie/include
+CFLAGS+= -I$(TOPDIR)include -I$(TOPDIR)../cybozulib/include
 LDFLAGS+= -L$(TOPDIR)lib -lcrypto -lpthread
 ifneq ($(UNAME_S),Darwin)
   LDFLAGS+=-lrt
