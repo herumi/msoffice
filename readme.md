@@ -4,6 +4,8 @@
 
 * 64-bit Windows Visual Studio 2012 or later
 * gcc 4.6, clang 3.0 or later
+* libssl
+  - `sudo apt install libssl-dev`
 
 # How to make `bin/msoffice-crypt.exe`
 
