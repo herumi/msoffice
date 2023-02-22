@@ -10,7 +10,7 @@
 #include <cybozu/minixml.hpp>
 #include <cybozu/endian.hpp>
 #if CYBOZU_HOST == CYBOZU_HOST_INTEL
-	#define USE_CUSTOM_SHA1
+//	#define USE_CUSTOM_SHA1
 #endif
 #ifdef USE_CUSTOM_SHA1
 #include "custom_sha1.hpp"
