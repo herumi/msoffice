@@ -7,6 +7,10 @@ CFLAGS_OPT = -O2 -DNDEBUG
 CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith #-Wswitch-enum -Wstrict-aliasing=2
 CFLAGS = -g -D_FILE_OFFSET_BITS=64
 CFLAGS+=$(CFLAGS_WARN)
+ifeq ($(OLD_OPENSSL),1)
+CFLAGS+=-DCYBOZU_USE_OPENSSL_NEW_HASH=0
+endif
+
 LDFLAGS = -lcrypto
 UNAME_S=$(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
