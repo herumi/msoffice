@@ -113,7 +113,6 @@ inline bool getAgileSecretKey(std::string& secretKey, const EncryptionInfo& info
 inline bool decodeAgile(std::string& decData, const std::string& encryptedPackage, const EncryptionInfo& info, const std::string& pass, std::string& secretKey)
 {
 	const CipherParam& keyData = info.keyData;
-	const CipherParam& encryptedKey = info.encryptedKey;
 	if (secretKey.empty()) {
 		if (!getAgileSecretKey(secretKey, info, pass)) return false;
 		if (putSecretKeyInstance()) {
@@ -130,8 +129,8 @@ inline bool decodeAgile(std::string& decData, const std::string& encryptedPackag
 	const uint64_t decodeSize = GetEncodedData(encData, encryptedPackage);
 
 	// decode
-	normalizeKey(secretKey, encryptedKey.keyBits / 8);
-	DecContent(decData, encData, encryptedKey, secretKey, keyData.saltValue);
+	normalizeKey(secretKey, keyData.keyBits / 8);
+	DecContent(decData, encData, keyData, secretKey, keyData.saltValue);
 	decData.resize(size_t(decodeSize));
 	return true;
 }
