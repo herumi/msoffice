@@ -17,6 +17,8 @@ Linux
     cd msoffice
     make -j RELEASE=1
 ```
+If you use an old OpenSSL library, then `make OLD_OPENSSL=1`.
+
 Windows
 ```
     mkdir work
