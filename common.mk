@@ -11,14 +11,14 @@ ifeq ($(OLD_OPENSSL),1)
 CFLAGS+=-DCYBOZU_USE_OPENSSL_NEW_HASH=0
 endif
 
-LDFLAGS = -lcrypto
 UNAME_S=$(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
-  EXT_DIR?=/opt/homebrew/
-  CFLAGS+=-I$(EXT_DIR)/include
-  LDFLAGS+=-L$(EXT_DIR)/lib
-  LIB_SUF=dylib
+#  EXT_DIR?=/opt/homebrew/
+#  CFLAGS+=-I$(EXT_DIR)/include
+#  LDFLAGS+=-L$(EXT_DIR)/lib
+#  LIB_SUF=dylib
 else
+  LDFLAGS = -lcrypto
   LIB_SUF=so
 endif
 
@@ -38,7 +38,7 @@ endif
 
 TOPDIR:=$(realpath $(dir $(lastword $(MAKEFILE_LIST))))/
 CFLAGS+= -I$(TOPDIR)include -I$(TOPDIR)../cybozulib/include
-LDFLAGS+= -L$(TOPDIR)lib -lcrypto -lpthread
+LDFLAGS+= -L$(TOPDIR)lib
 ifneq ($(UNAME_S),Darwin)
   LDFLAGS+=-lrt
 endif
