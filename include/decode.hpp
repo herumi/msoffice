@@ -192,12 +192,12 @@ bool decode(const char *data, uint32_t dataSize, const String& outFile, const st
 	ms::cfb::CompoundFile cfb(data, dataSize);
 	cfb.put();
 
-#if defined(__GNUC__) && !defined(__clang__)
+#if defined(__GNUC__) && __GNUC__ >= 13 && !defined(__clang__)
 	#pragma GCC diagnostic push
 	#pragma GCC diagnostic ignored "-Wdangling-reference"
 #endif
 	const std::string& encryptedPackage = GetContensByName(cfb, "EncryptedPackage"); // data
-#if defined(__GNUC__) && !defined(__clang__)
+#if defined(__GNUC__) && __GNUC__ >= 13 && !defined(__clang__)
 	#pragma GCC diagnostic pop
 #endif
 	const EncryptionInfo info(GetContensByName(cfb, "EncryptionInfo")); // xml
