@@ -2,7 +2,7 @@ include ../common.mk
 
 TARGET=$(TEST_FILE)
 
-SRC=msoffice-crypt.cpp attack.cpp
+SRC=msoffice-crypt.cpp #attack.cpp
 
 all: $(TARGET) $(SRC)
 
