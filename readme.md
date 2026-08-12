@@ -3,6 +3,7 @@
 # Environment
 
 * 64-bit Windows Visual Studio 2012 or later
+  - OpenSSL is no longer required on Windows.
 * gcc 4.6, clang 3.0 or later
 * libssl
   - `sudo apt install libssl-dev`
@@ -24,9 +25,8 @@ Windows
     mkdir work
     git clone https://github.com/herumi/cybozulib
     git clone https://github.com/herumi/msoffice
-    git clone https://github.com/herumi/cybozulib_ext # for openssl
     cd msoffice
-    mk.bat ; or open msoffice12.sln and build
+    mk.bat
 ```
 # How to use
 * Encrypt test.xlsx with a password `test`.
