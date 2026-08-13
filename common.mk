@@ -37,7 +37,7 @@ else
 endif
 
 TOPDIR:=$(realpath $(dir $(lastword $(MAKEFILE_LIST))))/
-CFLAGS+= -I$(TOPDIR)include -I$(TOPDIR)../cybozulib/include
+CFLAGS+= -I$(TOPDIR)include
 LDFLAGS+= -L$(TOPDIR)lib
 ifneq ($(UNAME_S),Darwin)
   LDFLAGS+=-lrt

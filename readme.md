@@ -3,17 +3,17 @@
 # Environment
 
 * 64-bit Windows Visual Studio 2012 or later
-  - OpenSSL is no longer required on Windows.
 * gcc 4.6, clang 3.0 or later
 * libssl
   - `sudo apt install libssl-dev`
+
+# News
+- OpenSSL is no longer required on Windows and macOS.
 
 # How to make `bin/msoffice-crypt.exe`
 
 Linux
 ```
-    mkdir work
-    git clone https://github.com/herumi/cybozulib
     git clone https://github.com/herumi/msoffice
     cd msoffice
     make -j RELEASE=1
@@ -22,8 +22,6 @@ If you use an old OpenSSL library, then `make OLD_OPENSSL=1`.
 
 Windows
 ```
-    mkdir work
-    git clone https://github.com/herumi/cybozulib
     git clone https://github.com/herumi/msoffice
     cd msoffice
     mk.bat
