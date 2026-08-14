@@ -1,6 +1,6 @@
 import os, sys, subprocess
 
-EXE='bin/msoffice-crypt.exe'
+EXE=os.path.join('bin', 'msoffice-crypt.exe')
 INP='data'
 OUT='out'
 
