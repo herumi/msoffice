@@ -341,10 +341,16 @@ struct FatSectors {
 		makeFatIdx(fatIdx, data, sectorSize, difat);
 		makeChains(chains, fatIdx);
 	}
-	void analyzeMini(const char *data, uint32_t sectorSize, uint32_t firstMiniFatSectorLocation)
+	/*
+		The mini FAT is stored in a standard sector chain of the FAT,
+		so read all sectors in the chain. (see [MS-CFB] 2.4)
+	*/
+	void analyzeMini(const char *data, uint32_t sectorSize, const UintVec& miniFatSectors)
 	{
 		UintVec fatIdx;
-		makeFatIdx1(fatIdx, data + firstMiniFatSectorLocation * sectorSize, sectorSize);
+		for (size_t i = 0; i < miniFatSectors.size(); i++) {
+			makeFatIdx1(fatIdx, data + miniFatSectors[i] * sectorSize, sectorSize);
+		}
 		makeChains(chains, fatIdx);
 	}
 	void put() const
@@ -747,10 +753,16 @@ struct CompoundFile {
 		fats.analyze(data + 512, sectorSize, header.difat);
 		if (header.numMiniFatSectors > 0) {
 			dprintf("# of mini fat sectors = %d\n", header.numMiniFatSectors);
-			if (header.firstMiniFatSectorLocation + 1 >= dataSize / sectorSize) {
-				throw cybozu::Exception("ms:cfb:CompoundFile:analyze:bad firstMiniFatSectorLocation") << header.firstMiniFatSectorLocation;
+			const UintVec& miniFatSectors = fats.get(header.firstMiniFatSectorLocation);
+			if (miniFatSectors.size() != header.numMiniFatSectors) {
+				throw cybozu::Exception("ms:cfb:CompoundFile:analyze:bad numMiniFatSectors") << miniFatSectors.size() << header.numMiniFatSectors;
 			}
-			miniFats.analyzeMini(data + 512, sectorSize, header.firstMiniFatSectorLocation);
+			for (size_t i = 0; i < miniFatSectors.size(); i++) {
+				if (miniFatSectors[i] + 1 >= dataSize / sectorSize) {
+					throw cybozu::Exception("ms:cfb:CompoundFile:analyze:bad miniFatSectorLocation") << miniFatSectors[i];
+				}
+			}
+			miniFats.analyzeMini(data + 512, sectorSize, miniFatSectors);
 		}
 		dprintf("analyze dirs\n");
 		dirs.analyze(data, sectorSize, fats.chains[header.firstDirectorySectorLocation]);

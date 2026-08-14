@@ -44,7 +44,7 @@ void run(const std::string& inFile)
 			if (asc == nameTbl[j]) {
 printf("save %s\n", nameTbl[j]);
 				std::ofstream ofs(nameTbl[j], std::ios::binary);
-				ofs.write((const char*)&dir.data[0], (size_t)dir.streamSize);
+				ofs.write(dir.content.data(), (size_t)dir.streamSize);
 			}
 		}
 	}
