@@ -401,11 +401,11 @@ inline std::string cipher(cybozu::crypto::Cipher::Name name, const char *msg, si
 	std::string ret;
 	ret.resize(msgLen + 128/* margin */);
 
-	const size_t roundMsgLen = msgLen & ~15;
+	int roundMsgLen = msgLen & ~15;
 
 	if (roundMsgLen > 0) {
-		int writeSize = cipher.update(&ret[0], msg, (int)roundMsgLen);
-		if (writeSize < 0) {
+		roundMsgLen= cipher.update(&ret[0], msg, roundMsgLen);
+		if (roundMsgLen < 0) {
 			throw cybozu::Exception("ms:cipher:update");
 		}
 	}
