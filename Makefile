@@ -15,8 +15,13 @@ clean:
 	$(MAKE) -C test clean
 	$(RM) -rf $(MSOC_LIB) $(MSOC_SLIB)
 
-src/$(OBJDIR)/msocdll.o: src/msocdll.cpp include/msoc.h
-	$(CXX) -c $< -o $@ $(CFLAGS) -fPIC
+src/$(OBJDIR):
+	@$(MKDIR) $@
+
+src/$(OBJDIR)/msocdll.o: src/msocdll.cpp | src/$(OBJDIR)
+	$(CXX) -c $< -o $@ $(CFLAGS) -fPIC -MMD -MP
+
+-include src/$(OBJDIR)/msocdll.d
 
 $(MSOC_LIB): src/$(OBJDIR)/msocdll.o
 	$(AR) $@ $<
