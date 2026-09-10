@@ -174,7 +174,7 @@ inline bool encode_in(
 	info.encryptedVerifierHashValue = cipher(encryptedKey.cipherName, hashedVerifier, skey2, iv, cybozu::crypto::Cipher::Encoding);
 
 	std::string secretKey;
-	FillRand(secretKey, encryptedKey.saltSize);
+	FillRand(secretKey, encryptedKey.keyBits / 8);
 #ifdef SAME_KEY
 	secretKey = fromHex("BF44FBB51BE1E88BF130156E117E7900");
 #endif

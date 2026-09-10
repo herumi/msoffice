@@ -8,6 +8,7 @@
   - `sudo apt install libssl-dev`
 
 # News
+- Fix: the secret key for AES-256 (`-encMode 1` and the DLL/lib API) was only 16 random bytes padded with a constant. It is now fully random. Existing encrypted files are still readable.
 - OpenSSL is no longer required on Windows and macOS.
 
 # How to make `bin/msoffice-crypt.exe`
