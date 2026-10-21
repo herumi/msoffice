@@ -1,4 +1,4 @@
-import os, sys, subprocess
+import os, sys, subprocess, zipfile
 
 EXE=os.path.join('bin', 'msoffice-crypt.exe')
 INP='data'
@@ -24,6 +24,10 @@ def verify(name):
 	data1 = open(dec1, 'rb').read()
 	data2 = open(dec2, 'rb').read()
 	print("size", len(data1))
+	# a corrupted plaintext would survive the round trip unchanged, so check it is a valid zip
+	if not zipfile.is_zipfile(dec1) or zipfile.ZipFile(dec1).testzip() is not None:
+		print("bad decode:not a valid zip", dec1)
+		exit(1)
 	if data1 != data2:
 		print("bad decode:not equal", dec1, dec2)
 		exit(1)
