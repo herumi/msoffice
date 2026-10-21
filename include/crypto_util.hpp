@@ -307,13 +307,11 @@ struct EncryptionInfo {
 		p += encryptionHeaderSizePos + 4;
 		dataSize -= encryptionHeaderSizePos + 4;
 		seHeader.analyze(p, encryptionHeaderSize);
-		seHeader.put();
 
 		p += encryptionHeaderSize;
 		dataSize -= encryptionHeaderSize;
-		printf("dataSize=%u\n", (uint32_t)dataSize);
+		dprintf("dataSize=%u\n", (uint32_t)dataSize);
 		seVerifier.analyze(p, dataSize);
-		seVerifier.put();
 	}
 
 	void setAgileEncryptionInfo(const std::string& data)
