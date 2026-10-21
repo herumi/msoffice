@@ -164,21 +164,20 @@ inline bool decodeStandardEncryption(std::string& dec, const std::string& encryp
 		printf("secretKey = "); dump(secretKey, false);
 	}
 
+	// encryptedPackage = [uint64_t decSize:encData]
+	if (encryptedPackage.size() < 8) {
+		throw cybozu::Exception("ms:decodeStandardEncryption:too small") << encryptedPackage.size();
+	}
 	const char *p = encryptedPackage.data();
 	size_t decSize = cybozu::Get32bitAsLE(p);
 	p += 8;
-	const size_t dataSize = encryptedPackage.size();
+	const size_t dataSize = encryptedPackage.size() - 8;
 	if (decSize > dataSize) {
 		throw cybozu::Exception("ms:decodeStandardEncryption:bad decSize") << decSize << dataSize;
 	}
-	const size_t blockSize = 4096;
-	dec.reserve(dataSize);
-	const size_t n = (dataSize + blockSize - 1) / blockSize;
+	// ECB mode (no IV), so the whole data can be decrypted at once
 	const std::string iv;
-	for (size_t i = 0; i < n; i++) {
-		const size_t len = (i < n - 1) ? blockSize : (dataSize % blockSize);
-		dec.append(cipher(header.cipherName, p + i * blockSize, len, secretKey, iv, cybozu::crypto::Cipher::Decoding));
-	}
+	dec = cipher(header.cipherName, p, dataSize, secretKey, iv, cybozu::crypto::Cipher::Decoding);
 	dec.resize(decSize);
 	return true;
 }
