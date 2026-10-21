@@ -212,7 +212,16 @@ bool decode(const char *data, uint32_t dataSize, const String& outFile, const st
 		if (!decodeAgile(decData, encryptedPackage, info, pass, secretKey)) return false;
 	}
 	if (!doView) {
-		DetectFormat(decData.c_str(), decData.size());
+		/*
+			decData is the genuine plaintext, so do not reject it just because it is not a ZIP/CFB container.
+			See issue #14.
+		*/
+		try {
+			DetectFormat(decData.c_str(), decData.size());
+		} catch (const std::exception& e) {
+			// This is unusual (the payload is almost always a ZIP), so show a warning.
+			dprintf("warning: decrypted data is not a ZIP/CFB container: %s\n", e.what());
+		}
 		cybozu::File out;
 		out.openW(outFile);
 		out.write(decData.c_str(), decData.size());
